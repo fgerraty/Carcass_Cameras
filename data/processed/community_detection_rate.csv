@@ -1,0 +1,274 @@
+ccam_num,day_num,carcass_age,CORA,TUVU,UNGU,Bird,small_mammal,Human
+5,1,2,5317s (~1.48 hours),25993s (~7.22 hours),0s,0s,0s,0s
+5,2,2,0s,30824s (~8.56 hours),0s,0s,0s,0s
+5,3,2,0s,30865s (~8.57 hours),0s,0s,0s,0s
+5,4,2,594s (~9.9 minutes),42735s (~11.87 hours),594s (~9.9 minutes),0s,0s,0s
+5,5,2,2968s (~49.47 minutes),30865s (~8.57 hours),0s,0s,0s,0s
+5,6,2,0s,28801s (~8 hours),0s,0s,0s,0s
+5,7,3,594s (~9.9 minutes),1781s (~29.68 minutes),0s,0s,0s,0s
+5,8,3,0s,3066s (~51.1 minutes),0s,0s,0s,0s
+5,9,3,0s,7200s (~2 hours),0s,0s,0s,0s
+5,10,3,1187s (~19.78 minutes),27904s (~7.75 hours),0s,0s,0s,0s
+5,11,3,0s,15162s (~4.21 hours),0s,0s,0s,0s
+5,12,3,0s,7122s (~1.98 hours),0s,0s,0s,0s
+5,13,4,0s,11160s (~3.1 hours),0s,0s,0s,0s
+5,14,4,0s,23149s (~6.43 hours),0s,0s,0s,0s
+5,15,4,0s,16618s (~4.62 hours),0s,0s,0s,0s
+5,16,4,594s (~9.9 minutes),17809s (~4.95 hours),0s,0s,0s,0s
+5,17,4,0s,14557s (~4.04 hours),0s,0s,0s,0s
+5,18,4,0s,10641s (~2.96 hours),0s,0s,0s,0s
+5,19,4,0s,5936s (~1.65 hours),0s,0s,0s,0s
+5,20,4,0s,6528s (~1.81 hours),0s,593s (~9.88 minutes),0s,0s
+5,21,4,0s,14400s (~4 hours),0s,0s,0s,0s
+5,22,4,0s,10200s (~2.83 hours),0s,0s,0s,0s
+5,23,4,2868s (~47.8 minutes),1434s (~23.9 minutes),0s,0s,0s,0s
+5,24,4,0s,6528s (~1.81 hours),0s,593s (~9.88 minutes),0s,0s
+5,25,4,0s,3561s (~59.35 minutes),0s,0s,0s,0s
+5,26,4,593s (~9.88 minutes),1187s (~19.78 minutes),0s,593s (~9.88 minutes),0s,0s
+5,27,4,0s,593s (~9.88 minutes),0s,593s (~9.88 minutes),0s,0s
+5,28,4,0s,593s (~9.88 minutes),0s,1187s (~19.78 minutes),0s,0s
+5,29,4,0s,0s,0s,0s,0s,0s
+5,30,4,0s,0s,0s,1780s (~29.67 minutes),0s,0s
+5,31,4,0s,600s (~10 minutes),0s,2400s (~40 minutes),0s,0s
+5,32,4,0s,0s,0s,3560s (~59.33 minutes),0s,0s
+5,33,4,0s,733s (~12.22 minutes),0s,2200s (~36.67 minutes),0s,0s
+5,34,4,0s,0s,0s,593s (~9.88 minutes),0s,0s
+5,35,4,0s,593s (~9.88 minutes),0s,0s,0s,0s
+5,36,4,0s,0s,0s,1187s (~19.78 minutes),0s,0s
+5,37,4,0s,0s,0s,593s (~9.88 minutes),0s,0s
+5,38,4,0s,0s,0s,593s (~9.88 minutes),0s,0s
+5,39,4,0s,0s,0s,1186s (~19.77 minutes),0s,0s
+5,40,4,0s,0s,0s,593s (~9.88 minutes),0s,0s
+5,41,4,0s,0s,0s,0s,0s,0s
+5,42,4,0s,0s,0s,0s,0s,0s
+5,43,4,0s,0s,0s,0s,0s,0s
+5,44,4,0s,0s,0s,593s (~9.88 minutes),0s,0s
+5,45,4,0s,1186s (~19.77 minutes),0s,593s (~9.88 minutes),0s,0s
+5,46,4,0s,0s,0s,0s,0s,0s
+5,47,4,0s,593s (~9.88 minutes),0s,0s,0s,0s
+5,48,4,0s,0s,0s,0s,0s,0s
+5,49,4,0s,0s,0s,0s,0s,0s
+5,50,4,0s,0s,0s,0s,0s,0s
+7,1,3,2361s (~39.35 minutes),1181s (~19.68 minutes),2952s (~49.2 minutes),590s (~9.83 minutes),0s,0s
+7,2,3,1822s (~30.37 minutes),2429s (~40.48 minutes),3036s (~50.6 minutes),0s,0s,0s
+7,3,3,0s,2968s (~49.47 minutes),1781s (~29.68 minutes),594s (~9.9 minutes),0s,0s
+7,4,3,0s,1187s (~19.78 minutes),5936s (~1.65 hours),594s (~9.9 minutes),0s,0s
+7,5,3,594s (~9.9 minutes),0s,2374s (~39.57 minutes),3561s (~59.35 minutes),0s,0s
+7,6,4,4155s (~1.15 hours),594s (~9.9 minutes),4155s (~1.15 hours),2374s (~39.57 minutes),0s,0s
+7,7,4,1781s (~29.68 minutes),0s,2968s (~49.47 minutes),0s,0s,0s
+9,2,4,593s (~9.88 minutes),0s,0s,8301s (~2.31 hours),0s,0s
+9,3,4,593s (~9.88 minutes),0s,593s (~9.88 minutes),5336s (~1.48 hours),0s,0s
+9,4,4,0s,0s,0s,1779s (~29.65 minutes),0s,0s
+9,5,4,0s,0s,593s (~9.88 minutes),3558s (~59.3 minutes),0s,0s
+9,6,4,591s (~9.85 minutes),0s,0s,4140s (~1.15 hours),0s,0s
+10,2,2,1181s (~19.68 minutes),2953s (~49.22 minutes),0s,0s,0s,0s
+11,2,3,593s (~9.88 minutes),5337s (~1.48 hours),0s,0s,0s,0s
+11,3,3,600s (~10 minutes),7200s (~2 hours),0s,0s,0s,0s
+11,4,3,593s (~9.88 minutes),11264s (~3.13 hours),0s,0s,0s,0s
+11,5,3,0s,23714s (~6.59 hours),0s,0s,0s,0s
+11,6,3,600s (~10 minutes),8400s (~2.33 hours),600s (~10 minutes),0s,0s,0s
+11,7,3,593s (~9.88 minutes),2371s (~39.52 minutes),0s,0s,0s,0s
+11,8,4,0s,0s,0s,0s,0s,0s
+11,9,4,0s,5335s (~1.48 hours),0s,0s,0s,0s
+11,10,4,1778s (~29.63 minutes),14224s (~3.95 hours),0s,0s,0s,0s
+11,11,4,593s (~9.88 minutes),593s (~9.88 minutes),593s (~9.88 minutes),0s,0s,0s
+11,12,4,0s,0s,0s,0s,0s,0s
+11,13,4,10670s (~2.96 hours),593s (~9.88 minutes),0s,0s,0s,0s
+11,14,4,0s,0s,0s,0s,600s (~10 minutes),0s
+11,15,4,4741s (~1.32 hours),0s,0s,0s,0s,0s
+11,16,4,2963s (~49.38 minutes),5926s (~1.65 hours),0s,0s,0s,0s
+11,17,4,592s (~9.87 minutes),3554s (~59.23 minutes),0s,592s (~9.87 minutes),0s,0s
+11,18,4,1185s (~19.75 minutes),8886s (~2.47 hours),0s,0s,0s,0s
+11,19,4,1185s (~19.75 minutes),13625s (~3.78 hours),0s,0s,0s,0s
+11,20,4,1777s (~29.62 minutes),5924s (~1.65 hours),0s,592s (~9.87 minutes),0s,0s
+11,21,4,2963s (~49.38 minutes),1778s (~29.63 minutes),0s,0s,0s,0s
+11,22,4,592s (~9.87 minutes),1778s (~29.63 minutes),0s,0s,0s,0s
+12,2,3,2367s (~39.45 minutes),4142s (~1.15 hours),0s,0s,0s,0s
+12,3,3,1184s (~19.73 minutes),0s,0s,0s,0s,0s
+12,4,4,0s,2432s (~40.53 minutes),0s,0s,0s,0s
+12,5,4,0s,608s (~10.13 minutes),0s,0s,0s,0s
+12,6,4,0s,2368s (~39.47 minutes),1184s (~19.73 minutes),0s,0s,0s
+12,7,4,0s,2960s (~49.33 minutes),592s (~9.87 minutes),0s,0s,0s
+12,8,4,1887s (~31.45 minutes),1887s (~31.45 minutes),629s (~10.48 minutes),1258s (~20.97 minutes),0s,0s
+13,1,3,1744s (~29.07 minutes),0s,13369s (~3.71 hours),0s,0s,0s
+14,2,3,2959s (~49.32 minutes),20712s (~5.75 hours),1184s (~19.73 minutes),0s,0s,0s
+14,3,3,1776s (~29.6 minutes),15389s (~4.27 hours),0s,0s,0s,0s
+14,4,3,1775s (~29.58 minutes),13019s (~3.62 hours),0s,0s,0s,0s
+14,5,3,1800s (~30 minutes),4800s (~1.33 hours),0s,0s,0s,0s
+14,6,3,1800s (~30 minutes),5400s (~1.5 hours),0s,0s,0s,0s
+14,7,3,0s,0s,592s (~9.87 minutes),0s,0s,0s
+14,8,3,2367s (~39.45 minutes),0s,0s,0s,0s,0s
+14,9,3,0s,583s (~9.72 minutes),583s (~9.72 minutes),0s,0s,0s
+15,2,3,1184s (~19.73 minutes),0s,4143s (~1.15 hours),0s,0s,0s
+17,2,3,726s (~12.1 minutes),0s,4358s (~1.21 hours),0s,0s,0s
+18,2,1,5929s (~1.65 hours),0s,0s,0s,0s,0s
+18,16,4,0s,0s,0s,0s,0s,0s
+20,2,2,3550s (~59.17 minutes),12425s (~3.45 hours),0s,0s,0s,0s
+20,3,2,2366s (~39.43 minutes),0s,0s,0s,0s,0s
+20,4,3,0s,0s,592s (~9.87 minutes),0s,0s,0s
+20,5,3,4140s (~1.15 hours),0s,0s,0s,0s,0s
+20,6,3,2365s (~39.42 minutes),12417s (~3.45 hours),0s,0s,0s,0s
+20,7,3,1182s (~19.7 minutes),2365s (~39.42 minutes),0s,0s,0s,0s
+20,8,3,5211s (~1.45 hours),3722s (~1.03 hours),0s,0s,0s,0s
+20,9,3,3549s (~59.15 minutes),3549s (~59.15 minutes),1774s (~29.57 minutes),0s,0s,0s
+20,10,3,591s (~9.85 minutes),0s,1774s (~29.57 minutes),0s,0s,0s
+20,11,3,1183s (~19.72 minutes),2365s (~39.42 minutes),5913s (~1.64 hours),0s,0s,0s
+20,12,3,2400s (~40 minutes),0s,7200s (~2 hours),0s,0s,0s
+20,13,3,0s,0s,5323s (~1.48 hours),0s,0s,0s
+22,2,3,591s (~9.85 minutes),0s,0s,0s,0s,0s
+22,3,4,0s,0s,0s,0s,0s,0s
+22,4,4,0s,0s,0s,0s,0s,0s
+22,5,4,592s (~9.87 minutes),10058s (~2.79 hours),0s,0s,0s,0s
+22,6,4,0s,1775s (~29.58 minutes),1775s (~29.58 minutes),0s,0s,0s
+22,7,4,0s,592s (~9.87 minutes),2366s (~39.43 minutes),0s,0s,0s
+22,8,4,0s,0s,0s,0s,0s,0s
+22,9,4,0s,0s,0s,0s,1775s (~29.58 minutes),0s
+22,10,4,0s,0s,0s,0s,0s,0s
+22,11,4,0s,0s,0s,0s,0s,0s
+22,12,4,0s,0s,0s,0s,0s,0s
+22,13,4,0s,0s,0s,0s,0s,0s
+22,14,4,0s,0s,0s,0s,0s,0s
+22,15,4,591s (~9.85 minutes),0s,0s,0s,0s,0s
+23,2,3,592s (~9.87 minutes),0s,28401s (~7.89 hours),0s,0s,0s
+23,3,3,6506s (~1.81 hours),7689s (~2.14 hours),19517s (~5.42 hours),0s,0s,0s
+23,4,3,2366s (~39.43 minutes),4140s (~1.15 hours),27798s (~7.72 hours),0s,0s,0s
+23,5,3,6000s (~1.67 hours),1200s (~20 minutes),17400s (~4.83 hours),0s,0s,0s
+23,6,3,6504s (~1.81 hours),591s (~9.85 minutes),8278s (~2.3 hours),0s,0s,0s
+23,7,3,5912s (~1.64 hours),0s,5321s (~1.48 hours),0s,0s,0s
+23,8,3,4729s (~1.31 hours),0s,10050s (~2.79 hours),0s,0s,0s
+23,9,3,7446s (~2.07 hours),894s (~14.9 minutes),12509s (~3.47 hours),0s,0s,0s
+23,10,4,1800s (~30 minutes),0s,7200s (~2 hours),0s,0s,0s
+23,11,4,591s (~9.85 minutes),0s,5321s (~1.48 hours),0s,0s,0s
+24,2,3,3549s (~59.15 minutes),0s,2366s (~39.43 minutes),0s,0s,0s
+24,3,3,8280s (~2.3 hours),2957s (~49.28 minutes),29571s (~8.21 hours),0s,0s,0s
+24,4,3,7097s (~1.97 hours),5323s (~1.48 hours),14786s (~4.11 hours),0s,0s,0s
+24,5,3,13603s (~3.78 hours),4140s (~1.15 hours),11237s (~3.12 hours),0s,0s,0s
+24,6,3,8280s (~2.3 hours),2957s (~49.28 minutes),11829s (~3.29 hours),0s,0s,0s
+24,7,3,10050s (~2.79 hours),0s,11232s (~3.12 hours),0s,0s,0s
+24,8,3,17731s (~4.93 hours),0s,8866s (~2.46 hours),0s,0s,0s
+24,10,3,5914s (~1.64 hours),0s,7097s (~1.97 hours),0s,0s,0s
+24,11,3,7687s (~2.14 hours),591s (~9.85 minutes),6504s (~1.81 hours),0s,0s,0s
+25,2,4,1183s (~19.72 minutes),4732s (~1.31 hours),592s (~9.87 minutes),0s,0s,0s
+25,3,4,7096s (~1.97 hours),4139s (~1.15 hours),5322s (~1.48 hours),0s,0s,0s
+25,4,4,7097s (~1.97 hours),9463s (~2.63 hours),2366s (~39.43 minutes),0s,0s,0s
+25,5,4,5913s (~1.64 hours),13008s (~3.61 hours),7687s (~2.14 hours),0s,0s,0s
+25,6,4,0s,1800s (~30 minutes),12600s (~3.5 hours),0s,0s,0s
+27,1,3,11222s (~3.12 hours),4134s (~1.15 hours),1181s (~19.68 minutes),0s,0s,0s
+27,2,3,17105s (~4.75 hours),4719s (~1.31 hours),22414s (~6.23 hours),0s,0s,0s
+27,3,3,10964s (~3.05 hours),0s,9137s (~2.54 hours),0s,0s,0s
+27,4,3,14776s (~4.1 hours),591s (~9.85 minutes),2364s (~39.4 minutes),0s,0s,0s
+27,5,3,3546s (~59.1 minutes),2364s (~39.4 minutes),0s,0s,0s,0s
+27,6,3,5319s (~1.48 hours),0s,3546s (~59.1 minutes),0s,0s,0s
+27,7,3,9452s (~2.63 hours),0s,2363s (~39.38 minutes),0s,0s,0s
+27,8,3,5485s (~1.52 hours),0s,609s (~10.15 minutes),0s,0s,0s
+29,1,3,0s,4560s (~1.27 hours),19760s (~5.49 hours),0s,0s,0s
+29,2,3,0s,9369s (~2.6 hours),14723s (~4.09 hours),0s,0s,0s
+29,3,3,5379s (~1.49 hours),10759s (~2.99 hours),16810s (~4.67 hours),0s,0s,0s
+29,4,3,1800s (~30 minutes),1800s (~30 minutes),16800s (~4.67 hours),600s (~10 minutes),0s,0s
+29,5,3,591s (~9.85 minutes),2955s (~49.25 minutes),8866s (~2.46 hours),0s,0s,0s
+29,6,3,0s,7800s (~2.17 hours),5200s (~1.44 hours),0s,0s,0s
+29,7,3,1302s (~21.7 minutes),5207s (~1.45 hours),1953s (~32.55 minutes),0s,0s,0s
+29,8,3,0s,1342s (~22.37 minutes),7383s (~2.05 hours),0s,0s,0s
+30,1,2,0s,0s,8400s (~2.33 hours),0s,0s,0s
+30,2,2,0s,1180s (~19.67 minutes),11797s (~3.28 hours),0s,0s,0s
+30,3,3,5909s (~1.64 hours),3546s (~59.1 minutes),26001s (~7.22 hours),0s,0s,591s (~9.85 minutes)
+30,4,3,8279s (~2.3 hours),13601s (~3.78 hours),22471s (~6.24 hours),0s,0s,0s
+30,5,3,4138s (~1.15 hours),12415s (~3.45 hours),8276s (~2.3 hours),0s,0s,0s
+30,6,3,6501s (~1.81 hours),12412s (~3.45 hours),14185s (~3.94 hours),0s,0s,0s
+30,7,3,8862s (~2.46 hours),591s (~9.85 minutes),12997s (~3.61 hours),0s,0s,0s
+30,8,3,591s (~9.85 minutes),591s (~9.85 minutes),5910s (~1.64 hours),0s,0s,0s
+30,9,3,1182s (~19.7 minutes),0s,591s (~9.85 minutes),0s,0s,0s
+31,1,3,5889s (~1.64 hours),14723s (~4.09 hours),21201s (~5.89 hours),589s (~9.82 minutes),0s,0s
+31,2,3,4135s (~1.15 hours),10634s (~2.95 hours),15360s (~4.27 hours),0s,0s,0s
+31,3,3,10631s (~2.95 hours),5316s (~1.48 hours),5316s (~1.48 hours),0s,0s,0s
+31,4,3,13200s (~3.67 hours),2400s (~40 minutes),6600s (~1.83 hours),0s,0s,0s
+31,5,3,1772s (~29.53 minutes),0s,5317s (~1.48 hours),2954s (~49.23 minutes),0s,0s
+31,6,3,3544s (~59.07 minutes),3544s (~59.07 minutes),1181s (~19.68 minutes),2362s (~39.37 minutes),0s,0s
+31,7,3,590s (~9.83 minutes),0s,1181s (~19.68 minutes),0s,0s,0s
+32,2,3,0s,0s,591s (~9.85 minutes),0s,0s,0s
+32,3,3,0s,0s,0s,0s,0s,0s
+32,4,3,0s,0s,4721s (~1.31 hours),0s,0s,0s
+32,5,3,0s,1770s (~29.5 minutes),1770s (~29.5 minutes),0s,0s,0s
+32,6,3,0s,0s,10623s (~2.95 hours),0s,0s,0s
+32,7,3,0s,0s,2360s (~39.33 minutes),0s,0s,0s
+32,8,4,0s,0s,591s (~9.85 minutes),0s,0s,0s
+32,9,4,0s,0s,2363s (~39.38 minutes),0s,0s,0s
+32,10,4,0s,0s,2954s (~49.23 minutes),0s,0s,0s
+33,2,3,1186s (~19.77 minutes),1186s (~19.77 minutes),1779s (~29.65 minutes),2371s (~39.52 minutes),0s,0s
+33,3,3,0s,2374s (~39.57 minutes),2968s (~49.47 minutes),7123s (~1.98 hours),0s,0s
+33,4,3,0s,0s,641s (~10.68 minutes),3205s (~53.42 minutes),0s,0s
+33,5,3,0s,12427s (~3.45 hours),1912s (~31.87 minutes),2868s (~47.8 minutes),0s,0s
+33,6,3,0s,9953s (~2.76 hours),4424s (~1.23 hours),3318s (~55.3 minutes),0s,0s
+33,7,3,0s,0s,1781s (~29.68 minutes),3561s (~59.35 minutes),0s,0s
+33,8,3,0s,4058s (~1.13 hours),2029s (~33.82 minutes),6087s (~1.69 hours),0s,0s
+33,9,3,0s,2774s (~46.23 minutes),925s (~15.42 minutes),4623s (~1.28 hours),0s,0s
+33,10,3,0s,1967s (~32.78 minutes),1312s (~21.87 minutes),8526s (~2.37 hours),0s,0s
+33,11,3,0s,0s,4700s (~1.31 hours),9400s (~2.61 hours),0s,0s
+33,12,3,0s,0s,0s,5365s (~1.49 hours),0s,0s
+33,13,3,0s,0s,1735s (~28.92 minutes),7809s (~2.17 hours),0s,0s
+33,14,3,0s,1313s (~21.88 minutes),7221s (~2.01 hours),10504s (~2.92 hours),0s,0s
+33,15,3,593s (~9.88 minutes),0s,0s,7122s (~1.98 hours),0s,0s
+33,16,3,0s,0s,0s,1800s (~30 minutes),0s,0s
+33,17,3,0s,0s,0s,0s,0s,0s
+33,18,3,1187s (~19.78 minutes),0s,0s,2968s (~49.47 minutes),0s,0s
+33,19,3,1780s (~29.67 minutes),593s (~9.88 minutes),0s,2374s (~39.57 minutes),0s,0s
+33,20,3,0s,0s,0s,5935s (~1.65 hours),0s,0s
+33,21,3,593s (~9.88 minutes),593s (~9.88 minutes),0s,3560s (~59.33 minutes),0s,0s
+33,22,3,0s,0s,0s,2999s (~49.98 minutes),0s,0s
+33,23,3,0s,0s,0s,5520s (~1.53 hours),0s,0s
+33,24,3,0s,0s,0s,2968s (~49.47 minutes),0s,0s
+33,25,3,0s,0s,0s,0s,0s,0s
+33,26,3,0s,0s,0s,0s,0s,0s
+33,27,3,0s,0s,0s,0s,0s,0s
+33,28,4,0s,0s,0s,1187s (~19.78 minutes),0s,0s
+33,29,4,1187s (~19.78 minutes),4747s (~1.32 hours),0s,1187s (~19.78 minutes),0s,0s
+33,30,4,0s,593s (~9.88 minutes),0s,593s (~9.88 minutes),593s (~9.88 minutes),0s
+33,31,4,0s,0s,0s,593s (~9.88 minutes),0s,0s
+33,32,4,0s,1192s (~19.87 minutes),0s,0s,0s,0s
+33,33,4,0s,0s,0s,0s,0s,0s
+33,34,4,0s,0s,0s,1841s (~30.68 minutes),0s,0s
+33,35,4,0s,0s,0s,3600s (~1 hours),0s,0s
+33,36,4,0s,0s,0s,1200s (~20 minutes),0s,0s
+33,37,4,0s,0s,0s,0s,0s,0s
+33,38,4,0s,1214s (~20.23 minutes),0s,0s,0s,0s
+33,39,4,0s,600s (~10 minutes),0s,0s,0s,0s
+33,40,4,0s,0s,0s,0s,0s,0s
+33,41,4,0s,0s,0s,0s,0s,0s
+33,42,4,0s,0s,0s,0s,0s,0s
+33,43,4,0s,0s,0s,0s,0s,0s
+33,44,4,0s,0s,0s,1187s (~19.78 minutes),0s,0s
+33,45,4,0s,0s,0s,600s (~10 minutes),0s,0s
+33,46,4,0s,0s,0s,1184s (~19.73 minutes),0s,0s
+35,2,3,0s,1186s (~19.77 minutes),16600s (~4.61 hours),0s,0s,0s
+35,3,3,0s,0s,8311s (~2.31 hours),594s (~9.9 minutes),0s,0s
+35,4,4,0s,0s,16983s (~4.72 hours),7885s (~2.19 hours),0s,0s
+35,5,4,0s,0s,18600s (~5.17 hours),4800s (~1.33 hours),0s,0s
+35,6,4,0s,0s,23045s (~6.4 hours),1819s (~30.32 minutes),0s,0s
+35,7,4,0s,0s,7885s (~2.19 hours),3033s (~50.55 minutes),0s,0s
+35,8,4,0s,0s,1226s (~20.43 minutes),4292s (~1.19 hours),0s,0s
+35,9,4,4127s (~1.15 hours),2751s (~45.85 minutes),4815s (~1.34 hours),4127s (~1.15 hours),0s,0s
+35,10,4,4127s (~1.15 hours),0s,2751s (~45.85 minutes),4127s (~1.15 hours),0s,0s
+35,11,4,0s,0s,626s (~10.43 minutes),1253s (~20.88 minutes),0s,0s
+35,12,4,0s,0s,0s,7931s (~2.2 hours),0s,0s
+35,13,4,1226s (~20.43 minutes),0s,613s (~10.22 minutes),6130s (~1.7 hours),0s,0s
+35,14,4,2756s (~45.93 minutes),0s,0s,9644s (~2.68 hours),0s,0s
+35,15,4,1227s (~20.45 minutes),0s,0s,4293s (~1.19 hours),0s,0s
+35,16,4,600s (~10 minutes),0s,1800s (~30 minutes),3000s (~50 minutes),0s,0s
+35,17,4,0s,593s (~9.88 minutes),0s,4748s (~1.32 hours),0s,0s
+35,18,4,7800s (~2.17 hours),4200s (~1.17 hours),0s,2400s (~40 minutes),0s,0s
+35,19,4,593s (~9.88 minutes),3561s (~59.35 minutes),593s (~9.88 minutes),1187s (~19.78 minutes),0s,0s
+35,20,4,2374s (~39.57 minutes),2374s (~39.57 minutes),0s,0s,0s,0s
+35,21,4,0s,0s,0s,0s,0s,0s
+35,22,4,597s (~9.95 minutes),1195s (~19.92 minutes),0s,0s,0s,0s
+35,23,4,8310s (~2.31 hours),1187s (~19.78 minutes),0s,0s,0s,0s
+35,24,4,607s (~10.12 minutes),0s,0s,0s,0s,0s
+35,25,4,2427s (~40.45 minutes),0s,0s,0s,0s,0s
+35,26,4,4962s (~1.38 hours),2481s (~41.35 minutes),0s,0s,0s,0s
+35,27,4,3939s (~1.09 hours),0s,0s,0s,0s,0s
+35,28,4,8400s (~2.33 hours),600s (~10 minutes),0s,0s,0s,0s
+35,29,4,6673s (~1.85 hours),607s (~10.12 minutes),0s,0s,0s,0s
+35,30,4,2373s (~39.55 minutes),0s,0s,0s,0s,0s
+35,31,4,0s,0s,0s,0s,0s,0s
+35,32,4,0s,0s,0s,0s,0s,0s
+36,1,3,0s,0s,593s (~9.88 minutes),0s,0s,0s
+36,2,3,0s,0s,0s,0s,0s,0s

@@ -6,6 +6,6 @@
 #-------------------------------------------------------------------------
 
 # Load packages
-packages <- c("tidyverse")
+packages <- c("tidyverse", "ggthemes")
 
 pacman::p_load(packages, character.only = TRUE); rm(packages)
