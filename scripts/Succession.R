@@ -83,13 +83,13 @@ plot_df2 <- plot_df %>%
 ggplot(plot_df, aes(x=carcass_age, 
                     y= detection_duration_mean / (60*60) , #transformed to hours
                     color = species_id))+
-  geom_jitter(width = .2, alpha = .6)+
+  geom_jitter(width = .2, alpha = .6, shape = 16)+
   geom_point(data = plot_df2, size = 4, alpha = 1)+
   geom_errorbar(data = plot_df2, 
                 aes(ymin = ((detection_duration_mean-detection_duration_se)/(60*60)),
                     ymax = ((detection_duration_mean+detection_duration_se)/(60*60)),
                     width = .2))+
-  facet_wrap(facets = "species_id", scales = "free_y", ncol = 1)+
+  facet_wrap(facets = "species_id", scales = "free_y", ncol = 2)+
   scale_y_continuous()+
   labs(y ="Time detected on carcass per day (hours)", 
        x = "Carcass age", 

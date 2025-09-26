@@ -85,3 +85,5 @@ scavenger_community_setup <- carcass_camera_photo_data_raw %>%
       select(-Blank)
 
     write_csv(community_df2, "data/processed/community_scavenging_rate.csv")
+    
+    
