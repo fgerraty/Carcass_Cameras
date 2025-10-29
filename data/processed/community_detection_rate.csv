@@ -340,3 +340,4 @@ ccam_num,day_num,carcass_age,CORA,TUVU,UNGU,Bird,small_mammal,Human
 50,12,3,0s,0s,0s,0s,0s,0s
 50,13,3,0s,0s,0s,0s,0s,0s
 50,14,3,0s,0s,0s,0s,0s,0s
+61,2,3,10800s (~3 hours),18600s (~5.17 hours),21000s (~5.83 hours),0s,0s,0s
