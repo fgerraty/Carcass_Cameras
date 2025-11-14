@@ -6,3 +6,4 @@
 .quarto
 data/prep/*
 scripts/prep/*
+temp/*
