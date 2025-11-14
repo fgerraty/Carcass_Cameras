@@ -42,3 +42,81 @@ species_pairs <- interactions %>%
 
 ggplot(species_pairs, aes(x=keyword, y=detections_per_day))+
   geom_bar(stat = "identity")
+
+
+
+
+
+
+
+
+library(tidyverse)
+
+df <- carcass_camera_photo_data_raw
+
+#------------------------------
+# 1. Extract competition pairs
+#   (1 interaction label per file)
+#------------------------------
+
+interaction_df <- df %>% 
+  filter(keyword %in% c("TUVU-CORA", "TUVU-UNGU", "CORA-UNGU")) %>% 
+  mutate(
+    interaction_keyword = keyword,
+    species_A = str_extract(keyword, "^[A-Z]+"),
+    species_B = str_extract(keyword, "(?<=-)[A-Z]+")
+  ) %>% 
+  select(file_name, interaction_keyword, species_A, species_B)
+
+
+#------------------------------
+# 2. Feeding species 
+#------------------------------
+feeding_df <- df %>% 
+  filter(str_detect(keyword, "^[0-9]")) %>% 
+  mutate(
+    feeding_species = str_extract(keyword, "(TUVU|CORA|UNGU)")
+  ) %>% 
+  filter(!is.na(feeding_species)) %>% 
+  distinct(file_name, feeding_species)
+
+
+#------------------------------
+# 3. Join (now safely one-to-many)
+#------------------------------
+
+combined <- interaction_df %>% 
+  left_join(feeding_df, by = "file_name", relationship = "many-to-many")
+
+#------------------------------------------------------
+# 4. Summarize dominance outcomes per interaction pair
+#------------------------------------------------------
+interaction_events <- combined %>% 
+  group_by(file_name, interaction_keyword, species_A, species_B) %>% 
+  summarise(
+    feeding_A = any(species_A %in% feeding_species),
+    feeding_B = any(species_B %in% feeding_species),
+    .groups = "drop"
+  )
+
+
+interaction_results <- interaction_events %>% 
+  mutate(
+    outcome = case_when(
+      feeding_A & !feeding_B ~ paste0(species_A, "_wins"),
+      feeding_B & !feeding_A ~ paste0(species_B, "_wins"),
+      feeding_A & feeding_B  ~ "both_feeding",
+      TRUE                   ~ "neither_feeding"
+    )
+  )
+
+results_table <- interaction_results %>% 
+  group_by(interaction_keyword, outcome) %>% 
+  summarise(
+    n = n(),
+    .groups = "drop_last"
+  ) %>% 
+  mutate(
+    prop = n / sum(n)
+  ) %>% 
+  ungroup()
