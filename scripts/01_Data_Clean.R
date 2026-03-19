@@ -6,12 +6,68 @@
 #-------------------------------------------------------------------------
 
 # Import raw data 
-carcass_camera_photo_data_raw <- read_csv("data/raw/carcass_camera_photo_data_raw.csv")
+carcass_camera_data <- read_csv("data/raw/carcass_camera_photo_data_raw.csv") %>% 
+  mutate(
+    #Make all keywords lowercase
+    keyword = str_to_lower(keyword),
+    
+    #Categorize "event type"
+    event_type = case_when(
+      str_detect(keyword, "blank") ~ "blank",
+      str_detect(keyword, "human") ~ "disturbance",
+      str_detect(keyword, "wave") ~ "disturbance",
+      str_detect(keyword, "else") ~ "disturbance",
+      str_detect(keyword, "no scavenging") ~ "other",
+      str_detect(keyword, "^\\d+") ~ "scavenging",
+      str_detect(keyword, "-") ~ "competition",
+      TRUE ~ "other"),
+
+    #For scavenging events, split apart scavenger count and species (species = species_1)
+    count = if_else(
+      event_type == "scavenging",
+      as.numeric(str_extract(keyword, "^\\d+")),
+      NA_real_ ),
+    
+    species_1 = case_when(
+      event_type == "scavenging" ~ str_remove(keyword, "^\\d+\\s+"),
+      TRUE ~ NA_character_ ),
+
+    #For competitive events, split species into species_1 and species_2
+  
+    species_1 = if_else(
+      event_type == "competition",
+      str_split(keyword, "-", simplify = TRUE)[,1],
+      species_1
+    ),
+    
+    species_2 = if_else(
+      event_type == "competition",
+      str_split(keyword, "-", simplify = TRUE)[,2],
+      NA_character_
+    ))
+  
+write_csv(carcass_camera_data, "data/processed/carcass_camera_data.csv")
 
 
-#How many photos? 
-length(unique(carcass_camera_photo_data_raw$file_name))
 
+scavenger_summary <- carcass_camera_data %>% 
+  filter(event_type == "scavenging") %>% 
+  group_by(species_1, timelapse) %>% 
+  summarise(n_detections = n(), .groups = "drop") %>% 
+  mutate(species_1 = fct_reorder(species_1, n_detections, .desc = TRUE))
+
+
+ggplot(scavenger_summary, aes(x=species_1, y=n_detections, fill = timelapse))+
+  geom_bar(stat="identity")+
+  labs(x="Scavenger Species", y="Total Scavenging Events")+
+#  scale_y_log10()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+
+
+
+#Maybe no longer relevant #####----------------------------------------------
 
 #Calculate the amount of time per day that a camera is taking timelapse photos, which will be used to quantify scavenging rates and describe scavenger abundance/activity (allows us to correct for different sampling effort and/or detection ability on different days)
 daily_timelapse_duration <- carcass_camera_photo_data_raw %>% 
@@ -22,7 +78,7 @@ daily_timelapse_duration <- carcass_camera_photo_data_raw %>%
             last_pic = max(date_time),
             .groups = "drop") %>% 
   #Calculate amount of time (in seconds) of monitoring per camera-day
-  mutate(monitoring_time =  as.duration(last_pic-first_pic)) %>% 
+  mutate(monitoring_time =  as.duration(last_pic-first_pic)) #%>% 
   select(-first_pic, -last_pic)
 
 

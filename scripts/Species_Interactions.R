@@ -5,17 +5,16 @@
 # Species Interactions ###################################################
 #-------------------------------------------------------------------------
 
-carcass_camera_photo_data_raw <- read_csv("data/raw/carcass_camera_photo_data_raw.csv")
+carcass_camera_data <- read_csv("data/processed/carcass_camera_data.csv")
 
-
-interactions <- carcass_camera_photo_data_raw %>% 
-  filter(str_detect(keyword, "-") & keyword != "Human - Camera Trappers") %>% 
-  filter(timelapse == TRUE)
+competitive_interactions <- carcass_camera_data %>% 
+  filter(event_type == "competition")
 
 
 #Plot number of competitive interactions per day (TL photos only) by carcass age
 
-plot_df <- interactions %>% 
+plot_df <- competitive_interactions %>% 
+  filter(timelapse == TRUE) %>% 
   group_by(ccam_num, carcass_age) %>% 
   summarize(n_competitive_interactions = n(),
             n_days = length(unique(day_num)),
@@ -27,8 +26,8 @@ ggplot(plot_df, aes(x=carcass_age, n_competive_interactions_per_day, color = cca
 
 #Plot number of competitive interactions based on species pairs
 
-species_pairs <- interactions %>%
-  filter(!str_detect(keyword, "Bird")) %>%
+species_pairs <- competitive_interactions %>%
+  filter(timelapse == TRUE) %>% 
   #Count number of species interaction detections and days for each carcass
   group_by(ccam_num, keyword) %>% 
   summarize(n_detections = n(),
