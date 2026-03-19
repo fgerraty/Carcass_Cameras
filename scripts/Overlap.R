@@ -58,3 +58,4 @@ ggplot(overlap_df, aes(x = time_rad, color = species_id)) +
   ) +
   theme_minimal() +
   labs(x = "Time of day", y = "Density", title = "Species diel activity patterns")
+

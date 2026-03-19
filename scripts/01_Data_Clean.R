@@ -9,6 +9,9 @@
 carcass_camera_photo_data_raw <- read_csv("data/raw/carcass_camera_photo_data_raw.csv")
 
 
+#How many photos? 
+length(unique(carcass_camera_photo_data_raw$file_name))
+
 
 #Calculate the amount of time per day that a camera is taking timelapse photos, which will be used to quantify scavenging rates and describe scavenger abundance/activity (allows us to correct for different sampling effort and/or detection ability on different days)
 daily_timelapse_duration <- carcass_camera_photo_data_raw %>% 
@@ -38,7 +41,6 @@ scavenger_community_setup <- carcass_camera_photo_data_raw %>%
   #Remove disturbances
   filter(!keyword == "Wave disturbance") %>% 
   filter(!keyword == "ELSE") %>% 
-  filter(!keyword == "Unknown") %>% 
   
   mutate(
     # split into two parts: number (if present) and species ID
@@ -70,7 +72,6 @@ scavenger_community_setup <- carcass_camera_photo_data_raw %>%
       select(ccam_num, day_num, carcass_age, species_id, detection_duration) %>% 
       pivot_wider(names_from = species_id, values_from = detection_duration,
                   values_fill = duration(0)) %>% 
-      rename(small_mammal = 'Small Mammal') %>% 
       select(-Blank)
 
     write_csv(community_df1, "data/processed/community_detection_rate.csv")

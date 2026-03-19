@@ -120,3 +120,4 @@ results_table <- interaction_results %>%
     prop = n / sum(n)
   ) %>% 
   ungroup()
+
