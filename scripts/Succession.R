@@ -5,21 +5,65 @@
 # Succession #############################################################
 #-------------------------------------------------------------------------
 
-#Import "wide" community dataframes
-community_df1 <- read_csv("data/processed/community_detection_rate.csv") %>% 
-  mutate(CORA = as.duration(CORA),
-         TUVU = as.duration(TUVU),
-         UNGU = as.duration(UNGU),
-         Bird = as.duration(Bird),
-         small_mammal = as.duration(small_mammal),
-         )
-community_df2 <- read_csv("data/processed/community_scavenging_rate.csv") %>% 
-  mutate(CORA = as.duration(CORA),
-         TUVU = as.duration(TUVU),
-         UNGU = as.duration(UNGU),
-         Bird = as.duration(Bird),
-         small_mammal = as.duration(small_mammal),
-  )
+carcass_camera_data <- read_csv("data/processed/carcass_camera_data.csv")
+
+succession <- carcass_camera_data %>% 
+  #remove poor image quality photos, disturbance photos, and competition photos (which all are also included in "scavenging")
+  filter(event_type %in% c("blank", "scavenging", "other")) %>% 
+  #Filter for only timelapse photos
+  filter(timelapse == TRUE) %>% 
+  #Calculate number of unique photos taken per carcass / decomposition level combo
+  group_by(ccam_num, carcass_age) %>% 
+  mutate(n_photos = length(unique(file_name))) %>% 
+  #Calculate number of photos in which each scavenger species was detected
+  group_by(ccam_num, carcass_age, n_photos, species_1) %>% 
+  summarise(n_detections = length(unique(file_name))) %>% 
+  
+  #Filter for species / groups of interest
+  filter(species_1 %in% c("turkey vulture", "common raven", "gull", "bird"))
+            
+
+#WE NEED TO ACCOUNT FOR ABSENCES AS ZEROS!!
+
+library(glmmTMB)
+
+
+tuvu_mod <- glmmTMB(n_detections ~ carcass_age + (1|ccam_num),
+                          data = filter(succession, species_1 == "turkey vulture"),
+                          offset = log(n_photos), 
+                          family = nbinom2)
+summary(tuvu_mod)
+
+cora_mod <- glmmTMB(n_detections ~ carcass_age + (1|ccam_num),
+                    data = filter(succession, species_1 == "common raven"),
+                    offset = log(n_photos), 
+                    family = nbinom2)
+summary(cora_mod)
+
+
+ungu_mod <- glmmTMB(n_detections ~ carcass_age + (1|ccam_num),
+                    data = filter(succession, species_1 == "gull"),
+                    offset = log(n_photos), 
+                    family = nbinom2)
+summary(ungu_mod)
+
+
+bird_mod <- glmmTMB(n_detections ~ carcass_age + (1|ccam_num),
+                    data = filter(succession, species_1 == "bird"),
+                    offset = log(n_photos), 
+                    family = nbinom2)
+summary(bird_mod)
+
+  
+plot_df <- succession %>% 
+  mutate(prop_time_scaveging = n_detections/n_photos)
+
+
+ggplot(plot_df, aes(x=carcass_age, y=prop_time_scaveging))+
+  geom_jitter(width = .1)+
+  facet_wrap(facets = "species_1")
+
+
 
 
 #Pivot longer for plotting
