@@ -6,7 +6,7 @@
 #-------------------------------------------------------------------------
 
 # Load packages
-packages <- c("tidyverse", "ggthemes", "overlap")
+packages <- c("tidyverse", "ggthemes", "overlap", "janitor", "glmmTMB", "mvabund")
 
 pacman::p_load(packages, character.only = TRUE); rm(packages)
 

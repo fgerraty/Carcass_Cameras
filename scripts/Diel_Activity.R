@@ -5,32 +5,25 @@
 # Diel Activity ##########################################################
 #-------------------------------------------------------------------------
 
-carcass_camera_photo_data_raw <- read_csv("data/raw/carcass_camera_photo_data_raw.csv")
+carcass_camera_data <- read_csv("data/processed/carcass_camera_data.csv")
 
-diel_activity <- carcass_camera_photo_data_raw %>% 
-  filter(timelapse == TRUE) %>% 
+diel_activity <- carcass_camera_data %>% 
   #Remove species interactions
-  filter(!str_detect(keyword, "-")) %>% 
-  #Remove unidentified large birds
-  filter(!str_detect(keyword, "TUVU/CORA/AMCR")) %>% 
-  mutate(
-    # split into two parts: number (if present) and species ID
-    count = as.numeric(str_extract(keyword, "^[0-9]+")),         # extract leading number
-    species_id = str_remove(keyword, "^[0-9]+\\s*")) %>%   # remove leading number + space
-  filter(species_id %in% c("TUVU", "CORA", "UNGU", "Bird", "Small Mammal")) %>% 
+  filter(event_type == "scavenging") %>% 
+  filter(species_1 %in% c("turkey vulture", "common raven", "gull", "woodrat", "bird", "deer mouse")) %>% 
   mutate(hour = hour(date_time)) %>% 
-  group_by(species_id, hour) %>%
+  group_by(species_1, hour) %>%
   summarize(freq = n())
 
 
 #Create temporary dataframe with all species/hour combinations with "freq", the frequency of recorded scavenging events
-temp_df <- data.frame(species_id = rep(unique(diel_activity$species_id), each = 24),
-                      hour = rep(0:23, n_distinct(diel_activity$species_id)),
+temp_df <- data.frame(species_1 = rep(unique(diel_activity$species_1), each = 24),
+                      hour = rep(0:23, n_distinct(diel_activity$species_1)),
                       freq = 0)
 
 #Combine temporary dataframe with "activity_df" and filter to that there is a value (>= 0) for each species/hour combination
 activity_df <- rbind(temp_df, diel_activity)%>% #combine dataframes
-  group_by(species_id, hour) %>% #group by species + hour
+  group_by(species_1, hour) %>% #group by species + hour
   mutate(freq = max(freq)) %>% #keep the maximum value for each species/hour combo
   distinct() #remove duplicates
 
@@ -48,7 +41,7 @@ activity_plot_all_spp <- ggplot(data = activity_df,
            stat = "identity",
            position = position_nudge (x=.5))+
   cp+
-  facet_wrap("species_id", scales="free")+
+  facet_wrap("species_1", scales="free")+
   theme_bw()+
   theme(aspect.ratio = 1)+
   scale_x_continuous(limits = c(-.0001, 24), breaks = 0:23)+
@@ -56,7 +49,8 @@ activity_plot_all_spp <- ggplot(data = activity_df,
        y = "No. Recorded Scavenging Events")
 activity_plot_all_spp
 
-
+ggsave("output/diel_activity.png", 
+       width = 7, height = 5, units = "in", dpi = 600)
 
 
 # Exploring Diel Activity by Carcass Decomp Level # Exploratory! 
