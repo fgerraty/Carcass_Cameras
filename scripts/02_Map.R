@@ -1,38 +1,26 @@
+##########################################################################
+# Año Nuevo Pinniped Carcass Cameras #####################################
+# Author: Frankie Gerraty (frankiegerraty@gmail.com; fgerraty@ucsc.edu) ##
+##########################################################################
+# Script 02: Generate Map ################################################
+#-------------------------------------------------------------------------
 
-
-library(sf)
-library(rnaturalearth)
-library(rnaturalearthdata)
-library(ggspatial)
-
+#Import deployment data
 deployments <- read_csv("data/raw/deployments.csv")
 
 
-#Import california counties shapefile, originally downloaded from https://purl.stanford.edu/jm667wq2232
+#Import California counties shapefile, originally downloaded from https://purl.stanford.edu/jm667wq2232
+#Note: this shapefile (.shp) must be placed within a folder titled "shapefile" in "data" folder. This shapefile is large and therefore must be downloaded separately from the publicly-available data repository. 
 counties <- st_read("data/shapefiles/stanford-jm667wq2232-shapefile/jm667wq2232.shp") %>% 
   st_make_valid() %>% 
   st_union() 
 
 
-
-states <- map_data("state")
-ca_df <- subset(states, region == "california")
-
-ggplot() + 
-  coord_fixed(1.3) + 
-  geom_polygon(data = ca_df, mapping = aes(x = long, y = lat, group = group), 
-               color = "black", fill = "lightgrey") +
-  geom_point(aes(y= 37.1134	, x= -122.32917),
-            color = "red", size = 3, fill = NA) +
-  theme_void()
-
-
+#Pull california data from rnaturalearth for plotting
 ca <- ne_states(country = "united states of america", returnclass = "sf") %>%
   dplyr::filter(name == "California")
 
-
-
-
+#Generate plots
 california_map <- ggplot() +
   geom_sf(data = ca, fill = "lightgrey", color = "black") +
   geom_point(data = deployments,
@@ -43,12 +31,11 @@ california_map <- ggplot() +
 california_map
 
 
-
 inset_map <- ggplot() +
   geom_sf(data = counties, fill = "antiquewhite",, color = "black") +
   geom_point(data = deployments,
              aes(x = longitude, y = latitude),
-             color = "black", size = 2) +
+             color = "black", size = 2, alpha = .6, shape=16) +
   geom_rect(aes(
     xmin = -122.319, 
     xmax = -122.341, 
@@ -84,8 +71,8 @@ inset_map <- ggplot() +
 inset_map
 
 
-
-ggsave("output/california_map.png", california_map, 
+#Output maps
+ggsave("output/extra_plots/california_map.png", california_map, 
        width = 1.5, height = 2, units = "in", dpi = 600)
-ggsave("output/inset_map.png", inset_map, 
+ggsave("output/extra_plots/inset_map.png", inset_map, 
        width = 3, height = 3, units = "in", dpi = 600)

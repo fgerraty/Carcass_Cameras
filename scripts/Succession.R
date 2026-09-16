@@ -72,16 +72,11 @@ summary(bird_mod)
 #Pivot longer for plotting
 
 scavenging_assemblages_longer <- scavenging_assemblages %>% 
-  pivot_longer(cols = c(4:11),
+  pivot_longer(cols = c(4:18),
                names_to = "species_id", 
                values_to = "detection_count") %>% 
   mutate(carcass_age = factor(carcass_age, levels = c( "1/2", "3", "4")),
-         detection_proportion = detection_count/n_photos) #%>% 
-  
-  #Filter for species of interest
-  filter(species_id %in% c("bird", "common_raven", "gull", "turkey_vulture")) %>% 
-  #filter for a minimum number of photos 
-  filter(n_photos >100)
+         detection_proportion = detection_count/n_photos)
 
 
 scav_assemblage_plot_summary <- scavenging_assemblages_longer %>% 
@@ -91,12 +86,22 @@ scav_assemblage_plot_summary <- scavenging_assemblages_longer %>%
 
 # Plot
 
-ggplot(scavenging_assemblages_longer, aes(x=as.character(carcass_age), 
+plot_df <- scavenging_assemblages_longer |> 
+  filter(species_id %in% c("turkey_vulture", "common_raven", "gull")) |> 
+  mutate(species_id = factor(species_id, 
+                             levels = c("turkey_vulture", "common_raven", "gull")))
+
+plot_df_summary <- plot_df %>% 
+  group_by(species_id, carcass_age) %>% 
+  summarise(mean = mean(detection_proportion), 
+            ci = 1.96 * sd(detection_proportion)/sqrt(n()))
+
+ggplot(plot_df, aes(x=as.character(carcass_age), 
                  y=detection_proportion, #transformed to hours
                  fill = species_id))+
   geom_point(color = "grey")+
   geom_line(color = "grey", aes(group = ccam_num))+
-  geom_pointrange(data =scav_assemblage_plot_summary, aes(y=mean, 
+  geom_pointrange(data =plot_df_summary, aes(y=mean, 
                                                           ymin = mean-ci, 
                                                           ymax = mean+ci))+
   facet_wrap(facets = "species_id", scales = "free_y")+
@@ -151,18 +156,21 @@ ggplot(plot_df, aes(x=carcass_age,
   
 
 
+install.packages("vegan")
 
-
+library(vegan)
+library(ggrepel)
 
 #NMDS! 
 
 scavenging_assemblages_wider <- scavenging_assemblages_longer %>% 
+  select(-n_photos, -detection_count) |> 
   pivot_wider(names_from = species_id, values_from = detection_proportion, values_fill = 0)
 
 set.seed(99)
 
 #pull scavenger assemblage
-scav_assemblage <- data.frame(scavenging_assemblages_wider[5:ncol(scavenging_assemblages_wider)]) %>% 
+scav_assemblage <- data.frame(scavenging_assemblages_wider[3:ncol(scavenging_assemblages_wider)]) %>% 
   filter(rowSums(.) > 0)
 
 nMDS <- metaMDS(scav_assemblage, k=2, trymax = 1000, maxit = 10000)
@@ -179,3 +187,116 @@ nMDS_coords <- cbind(scavenging_assemblages_wider, nMDS_coords)
 ggplot(data=nMDS_coords, aes(x=MDS1, y=MDS2, color = carcass_age))+
   geom_point(size=6)
   
+
+fit <- envfit(nMDS, scav_assemblage, permutations = 999)
+fit  # shows r2 and p-value per species
+
+
+
+fit <- envfit(nMDS, scav_assemblage, permutations = 999)
+
+vectors_df <- as.data.frame(scores(fit, "vectors")) * ordiArrowMul(fit)
+vectors_df$species <- rownames(vectors_df)
+vectors_df$r2 <- fit$vectors$r
+vectors_df$pval <- fit$vectors$pvals
+
+# keep only meaningful fits
+vectors_df_sig <- vectors_df %>% filter(pval < 0.05)
+
+vectors_df_sig
+
+library(viridis)
+
+species_df <- as.data.frame(species_scores)
+species_df$species <- rownames(species_df)
+
+nmds_nolabel <- ggplot(data = nMDS_coords, aes(x = MDS1, y = MDS2, color = carcass_age)) +
+  geom_point(size = 4, shape=16, alpha=.9) +
+  scale_color_manual(labels = c("Fresh", "Moderate", "Old"), 
+                     values = c("#dc267f","#648fff", "#ffb000"))+
+  labs(x="NMDS1", y="NMDS2", color = "Carcass Age")+
+  coord_cartesian(xlim = c(-2, 8.5))+
+  theme_few()+
+  theme(panel.border = element_rect(linewidth = 2),
+               axis.title = element_text(face = "bold"),
+               legend.title = element_text(face = "bold"),)
+  
+
+nmds_label <- ggplot(data = nMDS_coords, aes(x = MDS1, y = MDS2, color = carcass_age)) +
+  geom_point(size = 4, shape=16, alpha=.9) +
+  geom_point(data = species_df, aes(x = NMDS1, y = NMDS2), inherit.aes = FALSE,
+             shape = 17, size = 3, color = "black") +
+  geom_text_repel(data = species_df, aes(x = NMDS1, y = NMDS2, label = species), 
+                  inherit.aes = FALSE, vjust = -0.5, size = 3)+
+  scale_color_manual(labels = c("Fresh", "Moderate", "Old"), 
+                     values = c("#dc267f","#648fff", "#ffb000"))+
+  labs(x="NMDS1", y="NMDS2", color = "Carcass Age")+
+  coord_cartesian(xlim = c(-2, 8.5))+
+  theme_few()+
+  theme(panel.border = element_rect(linewidth = 2),
+        axis.title = element_text(face = "bold"),
+        legend.title = element_text(face = "bold"),)
+
+
+ggsave("output/nmds_nolabel.png", nmds_nolabel, 
+       width = 8, height = 6, units = "in", dpi = 600)
+
+ggsave("output/nmds_label.png", nmds_label, 
+       width = 8, height = 6, units = "in", dpi = 600)
+
+
+
+
+
+
+#Plot for talk
+
+plot_df <- scavenging_assemblages %>% 
+  pivot_longer(cols = c(4:18),
+               names_to = "species_id", 
+               values_to = "detection_count") %>% 
+  mutate(carcass_age = factor(carcass_age, levels = c( "1/2", "3", "4")),
+         detection_proportion = detection_count/n_photos,
+         species_id = if_else(
+           species_id %in% c("killdeer", "savannah_sparrow", "song_sparrow",
+                             "white_crowned_sparrow", "european_starling",
+                             "semipalmated_plover","black_phoebe"), 
+           "insectivorous_bird", species_id)) |> 
+  group_by(ccam_num, carcass_age, n_photos, species_id) |> 
+  summarise(count = sum(detection_count), .groups="drop") |> 
+  mutate(detection_rate = count/n_photos) |> 
+  filter(species_id %in% c("turkey_vulture", "insectivorous_bird")) |> 
+  mutate(species_id = case_when(
+          species_id == "turkey_vulture"~"Turkey Vulture", 
+          species_id == "insectivorous_bird" ~ "Insectivorous Bird"),
+          species_id = factor(species_id, 
+                             levels = c("Turkey Vulture", "Insectivorous Bird")))
+
+plot_df_summary <- plot_df %>% 
+  group_by(species_id, carcass_age) %>% 
+  summarise(mean = mean(detection_rate), 
+            ci = 1.96 * sd(detection_rate)/sqrt(n()))
+
+
+succ_temp <- ggplot(plot_df, aes(x=as.character(carcass_age), 
+                    y=detection_rate, #transformed to hours
+                    fill = species_id))+
+  geom_point(color = "grey")+
+  geom_pointrange(data =plot_df_summary, aes(y=mean, 
+                                             ymin = mean-ci, 
+                                             ymax = mean+ci))+
+  facet_wrap(facets = "species_id", scales = "free_y")+
+  scale_x_discrete(labels = c("Fresh", "Moderate", "Old"))+
+  labs(y ="Proportion of time detected on carcass", 
+       x = "Carcass age", 
+       fill = "Species ID")+
+  theme_few()+
+  theme(panel.border = element_rect(linewidth = 2),
+        strip.text = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold"),
+        axis.title.y = element_text(face = "bold"),
+        legend.position="none",)
+
+
+ggsave("output/succ_temp.png", succ_temp, 
+       width = 8, height = 5, units = "in", dpi = 600)

@@ -2,29 +2,83 @@
 # Carcass Cameras ########################################################
 # Author: Frankie Gerraty (frankiegerraty@gmail.com; fgerraty@ucsc.edu) ##
 ##########################################################################
-# Species Interactions ###################################################
+# Script 03: Species Interactions ########################################
 #-------------------------------------------------------------------------
+set.seed(999)
 
 carcass_camera_data <- read_csv("data/processed/carcass_camera_data.csv")
 
 competitive_interactions <- carcass_camera_data %>% 
   filter(event_type == "competition")
 
+#########################################################################
+# How does competition for carcasses vary by carcass age? ###############
+#########################################################################
+
+competition_over_time <- carcass_camera_data %>% 
+  filter(timelapse == TRUE) %>% 
+  #Group carcass age stages 1 and 2
+  mutate(carcass_age = if_else(carcass_age %in% c(1,2), "1/2", 
+                               as.character(carcass_age)), 
+         #Turn into a factor
+         carcass_age = factor(carcass_age, levels = c("1/2","3","4"))) %>% 
+  mutate(competition = if_else(event_type == "competition", TRUE, FALSE),
+         ccam_num = as.factor(ccam_num)) %>% 
+  group_by(ccam_num, carcass_age) %>% 
+  summarize(n_competitive_interactions = n_distinct(file_name[competition==TRUE]),
+            n_photos = length(unique(file_name)),
+            n_days = length(unique(day_num)),
+            n_competive_interactions_per_day = n_competitive_interactions/n_days,
+            prop_photos_competition = n_competitive_interactions / n_photos,
+            .groups = "drop") %>% 
+  #Filter for only carcasses (carcass-age combos) with >100 monitoring photos (e.g. ~12 hrs)
+  filter(n_photos > 100)
+
+
+#Linear mixed effects model 
+comp_glmer <- glmmTMB(n_competitive_interactions ~ carcass_age + offset(log(n_photos)) +
+                        (1 | ccam_num),
+                     family = nbinom1,
+                     data = competition_over_time)
+summary(comp_glmer)
+
+# Check assumptions with DHARMa package
+comp_glmer_res = simulateResiduals(comp_glmer)
+plot(comp_glmer_res, rank = T)
+testDispersion(comp_glmer_res)
+plotResiduals(comp_glmer_res, factor(competition_over_time$ccam_num), xlab = "carcass #", main=NULL)
 
 #Plot number of competitive interactions per day (TL photos only) by carcass age
 
-plot_df <- competitive_interactions %>% 
-  filter(timelapse == TRUE) %>% 
-  group_by(ccam_num, carcass_age) %>% 
-  summarize(n_competitive_interactions = n(),
-            n_days = length(unique(day_num)),
-            n_competive_interactions_per_day = n_competitive_interactions/n_days) 
+ggplot(competition_over_time, aes(x=carcass_age, n_competive_interactions_per_day))+
+  geom_jitter(width = .1, color = "grey70")+
+  labs(x="Carcass Age", y="# Competitive Interactions Per Day")+
+  theme_few()+
+  theme(axis.text.x = element_text(face = "bold"),
+        axis.text.y = element_text(face = "bold"),
+        panel.border = element_rect(linewidth = 2),
+        axis.title = element_text(face = "bold"),
+        legend.position.inside = c(.7, .7))
 
-ggplot(plot_df, aes(x=carcass_age, n_competive_interactions_per_day, color = ccam_num))+
-  geom_point()
+stat_summary <- competition_over_time %>% 
+  group_by(carcass_age) %>% 
+  summarise(mean = mean(prop_photos_competition), 
+         se = sd(prop_photos_competition)/sqrt(n()))
+
+ggplot(competition_over_time, aes(x=carcass_age, y=prop_photos_competition))+
+  geom_jitter(width = .1, color = "grey70")+
+  geom_point(data = stat_summary, aes(y=mean), size = 3)+
+  geom_errorbar(data = stat_summary, aes(y=mean, ymin = mean-se, ymax = mean+se), width = 0)+
+  labs(x="Carcass Age", y="Proportion of photos documenting\ncompetitive interactions")+
+  theme_few()+
+  theme(axis.text.x = element_text(face = "bold"),
+        axis.text.y = element_text(face = "bold"),
+        panel.border = element_rect(linewidth = 2),
+        axis.title = element_text(face = "bold"),
+        legend.position.inside = c(.7, .7))
 
 
-#Plot number of competitive interactions based on species pairs
+#Plot number of competitive interactions based on species pairs - Remove? 
 
 species_pairs <- competitive_interactions %>%
   filter(timelapse == TRUE) %>% 
@@ -42,7 +96,11 @@ species_pairs <- competitive_interactions %>%
 ggplot(species_pairs, aes(x=keyword, y=detections_per_day))+
   geom_bar(stat = "identity")
 
+
+
+################################################################################
 # Focal Competitive Interactions: Vultures, Ravens, Gulls ######################
+################################################################################
 
 focal_interactions <- competitive_interactions %>% 
   filter(keyword %in% c("turkey vulture-common raven", "turkey vulture-gull", "common raven-gull")) %>% 
@@ -53,7 +111,6 @@ focal_interactions <- competitive_interactions %>%
   select(file_name, keyword, species_A, species_B)
 
 
-
 # Identify feeding species 
 
 feeding_df <- carcass_camera_data %>% 
@@ -61,15 +118,16 @@ feeding_df <- carcass_camera_data %>%
          species_1 %in% c("turkey vulture", "common raven", "gull"))%>% 
   distinct(file_name, species_1) %>% 
   rename(feeding_species = species_1)
- #LOOK INTO WHY SOME FILES DROP HERE!!!!
 
 
 combined <- focal_interactions %>% 
   left_join(feeding_df, by = "file_name", relationship = "many-to-many")
 
-#------------------------------------------------------
-# 4. Summarize dominance outcomes per interaction pair
-#------------------------------------------------------
+#Check to make sure that all documented competitive interactions had associated feeding species
+length(unique(focal_interactions$file_name)) == length(unique(combined$file_name))
+
+
+#Summarize dominance outcomes per interaction pair
 interaction_events <- combined %>% 
   group_by(file_name, keyword, species_A, species_B) %>% 
   summarise(
@@ -116,7 +174,7 @@ diverging <- results_table %>%
   mutate(
     right_sp = case_when(
       str_detect(keyword, "turkey vulture") ~ "turkey vulture",
-      keyword == "common raven-gull"        ~ "common raven"   # you decide
+      keyword == "common raven-gull"        ~ "common raven"
     ),
     left_sp = case_when(
       keyword == "turkey vulture-gull"         ~ "gull",
@@ -148,7 +206,7 @@ diverging <- results_table %>%
     keyword = fct_relevel(keyword,
                           "common raven-gull",
                           "turkey vulture-common raven",
-                          "turkey vulture-gull"         # top of plot
+                          "turkey vulture-gull"
     )
   ) %>% 
   mutate(n_label = if_else(outcome %in% c("both_feeding_neg", "both_feeding_pos"), NA, n))
@@ -189,8 +247,8 @@ ggplot(diverging, aes(x = prop_signed, y = keyword, fill = outcome)) +
   ) +
   scale_fill_manual(
     values = pal,
-    breaks = c("turkey vulture_wins", "both_feeding_pos", "common raven_wins", "gull_wins"),
-    labels = c("Turkey vulture feeding", "Both feeding", "Common raven feeding", "Gull feeding"),
+    breaks = c("turkey vulture_wins",  "common raven_wins", "gull_wins", "both_feeding_pos"),
+    labels = c("Turkey vulture feeding", "Common raven feeding", "Gull feeding", "Both feeding"),
     name   = NULL
   )+
   labs(x = "Proportion of competitive interactions", y = NULL,
