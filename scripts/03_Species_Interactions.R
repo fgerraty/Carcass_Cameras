@@ -253,8 +253,7 @@ ggplot(diverging, aes(x = prop_signed, y = keyword, fill = outcome)) +
     labels = c("Turkey vulture feeding", "Common raven feeding", "Gull feeding", "Both feeding"),
     name   = NULL
   )+
-  labs(x = "Proportion of competitive interactions", y = NULL,
-       title    = "Outcomes of interspecific competition") +
+  labs(x = "Proportion of competitive interactions", y = NULL,) +
   theme_minimal(base_size = 13) +
   theme(
     legend.position    = "bottom",
