@@ -29,6 +29,7 @@ carcass_camera_data <- read_csv("data/raw/carcass_camera_photo_data_raw.csv") |>
       keyword == "virginia opossum" ~ "1 virginia opossum",
       keyword == "bird" ~ "1 bird",
       keyword == "eust" ~ "1 eust",
+      keyword == "ungu" ~ "1 ungu",
       keyword == "songbird" ~ "1 songbird",
       TRUE ~ keyword),
     
@@ -200,3 +201,4 @@ scav_summary_plot
 
 ggsave("output/scav_summary_plot.png", scav_summary_plot, 
        width = 8, height = 5, units = "in", dpi = 600)
+

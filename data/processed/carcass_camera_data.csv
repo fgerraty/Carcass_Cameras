@@ -149537,7 +149537,7 @@ CCAM6_D28_071.jpg,2023-08-02T13:15:30Z,6,28,71,3,FALSE,2 turkey vulture,4,scaven
 CCAM6_D28_072.jpg,2023-08-02T13:16:57Z,6,28,72,3,FALSE,1 gull,4,scavenging,1,gull,NA
 CCAM6_D28_072.jpg,2023-08-02T13:16:57Z,6,28,72,3,FALSE,3 turkey vulture/common raven/American crow,4,scavenging,3,turkey vulture/common raven/American crow,NA
 CCAM6_D28_072.jpg,2023-08-02T13:16:57Z,6,28,72,3,FALSE,common raven-gull,4,competition,NA,common raven,gull
-CCAM6_D28_072.jpg,2023-08-02T13:16:57Z,6,28,72,3,FALSE,turkey vulture-common raven,4,competition,NA,turkey vulture,common raven
+CCAM6_D28_072.jpg,2023-08-02T13:16:57Z,6,28,72,3,FALSE,turkey vulture-gull,4,competition,NA,turkey vulture,gull
 CCAM6_D28_073.jpg,2023-08-02T13:17:41Z,6,28,73,3,FALSE,1 turkey vulture/common raven/American crow,4,scavenging,1,turkey vulture/common raven/American crow,NA
 CCAM6_D28_073.jpg,2023-08-02T13:17:41Z,6,28,73,3,FALSE,1 gull,4,scavenging,1,gull,NA
 CCAM6_D28_073.jpg,2023-08-02T13:17:41Z,6,28,73,3,FALSE,common raven-gull,4,competition,NA,common raven,gull
@@ -168474,7 +168474,7 @@ CCAM31_D1_042.jpg,2023-11-28T10:25:04Z,31,1,42,1,FALSE,1 gull,3,scavenging,1,gul
 CCAM31_D1_042.jpg,2023-11-28T10:25:04Z,31,1,42,1,FALSE,common raven-bird,3,competition,NA,common raven,bird
 CCAM31_D1_042.jpg,2023-11-28T10:25:04Z,31,1,42,1,FALSE,gull-bird,3,competition,NA,gull,bird
 CCAM31_D1_073.jpg,2023-11-28T12:55:58Z,31,1,73,1,TRUE,turkey vulture-gull,3,competition,NA,turkey vulture,gull
-CCAM31_D1_073.jpg,2023-11-28T12:55:58Z,31,1,73,1,TRUE,gull,3,other,NA,NA,NA
+CCAM31_D1_073.jpg,2023-11-28T12:55:58Z,31,1,73,1,TRUE,1 gull,3,scavenging,1,gull,NA
 CCAM31_D5_10.jpg,2023-12-02T08:15:58Z,31,5,10,1,TRUE,1 bird,3,scavenging,1,bird,NA
 CCAM31_D5_10.jpg,2023-12-02T08:15:58Z,31,5,10,1,TRUE,bird-bird,3,competition,NA,bird,bird
 CCAM31_D5_11.jpg,2023-12-02T08:25:58Z,31,5,11,1,TRUE,1 bird,3,scavenging,1,bird,NA
@@ -169754,7 +169754,7 @@ CCAM7_D6_110.jpg,2023-07-11T10:53:11Z,7,6,110,1,FALSE,2 European starling,4,scav
 CCAM7_D6_110.jpg,2023-07-11T10:53:11Z,7,6,110,1,FALSE,bird-bird,4,competition,NA,bird,bird
 CCAM7_D6_138.jpg,2023-07-11T11:30:27Z,7,6,138,1,FALSE,bird-bird,4,competition,NA,bird,bird
 CCAM7_D6_138.jpg,2023-07-11T11:30:27Z,7,6,138,1,FALSE,1 European starling,4,scavenging,1,European starling,NA
-CCAM7_D6_138.jpg,2023-07-11T11:30:27Z,7,6,138,1,FALSE,gull,4,other,NA,NA,NA
+CCAM7_D6_138.jpg,2023-07-11T11:30:27Z,7,6,138,1,FALSE,1 gull,4,scavenging,1,gull,NA
 CCAM7_D6_138.jpg,2023-07-11T11:30:27Z,7,6,138,1,FALSE,gull-bird,4,competition,NA,gull,bird
 CCAM7_D6_139.jpg,2023-07-11T11:30:58Z,7,6,139,1,FALSE,1 European starling,4,scavenging,1,European starling,NA
 CCAM7_D6_139.jpg,2023-07-11T11:30:58Z,7,6,139,1,FALSE,1 gull,4,scavenging,1,gull,NA

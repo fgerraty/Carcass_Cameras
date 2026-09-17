@@ -48,54 +48,63 @@ plot(comp_glmer_res, rank = T)
 testDispersion(comp_glmer_res)
 plotResiduals(comp_glmer_res, factor(competition_over_time$ccam_num), xlab = "carcass #", main=NULL)
 
-#Plot number of competitive interactions per day (TL photos only) by carcass age
+#emmeans model summary
+mean_photos <- mean(competition_over_time$n_photos)
+model_means <- emmeans(comp_glmer, ~ carcass_age, type = "response",
+                       offset = log(mean(competition_over_time$n_photos))) |> 
+  as.data.frame() |> 
+  mutate(response_prop = response / mean_photos,
+         LCL_prop = asymp.LCL / mean_photos,
+         UCL_prop = asymp.UCL / mean_photos)
 
-ggplot(competition_over_time, aes(x=carcass_age, n_competive_interactions_per_day))+
-  geom_jitter(width = .1, color = "grey70")+
-  labs(x="Carcass Age", y="# Competitive Interactions Per Day")+
-  theme_few()+
+
+#Plot 
+
+competition_over_time_plot <- competition_over_time %>%
+  group_by(ccam_num) %>%
+  mutate(carcass_age_jit = as.numeric(carcass_age) + runif(1, -0.1, 0.1)) %>%
+  ungroup()
+
+
+ggplot(competition_over_time_plot, aes(x = carcass_age_jit, 
+                                       y = prop_photos_competition, 
+                                       group = ccam_num)) +
+  geom_line(color = "grey80", alpha = .7) +
+  geom_point(color = "grey80") +
+  geom_point(data = model_means, aes(x = as.numeric(carcass_age), 
+                                     y = response_prop), 
+             inherit.aes = FALSE, size = 3) +
+  geom_errorbar(data = model_means, 
+                aes(x = as.numeric(carcass_age), 
+                    y = response_prop, 
+                    ymin = LCL_prop, ymax = UCL_prop), 
+                inherit.aes = FALSE, width = 0) +
+  scale_x_continuous(breaks = c(1,2,3), labels = c("1/2", "3", "4"))+
+  labs(x = "Carcass Age", y = "Proportion of photos documenting\ncompetitive interactions") +
+  theme_few() +
   theme(axis.text.x = element_text(face = "bold"),
         axis.text.y = element_text(face = "bold"),
         panel.border = element_rect(linewidth = 2),
-        axis.title = element_text(face = "bold"),
-        legend.position.inside = c(.7, .7))
-
-stat_summary <- competition_over_time %>% 
-  group_by(carcass_age) %>% 
-  summarise(mean = mean(prop_photos_competition), 
-         se = sd(prop_photos_competition)/sqrt(n()))
-
-ggplot(competition_over_time, aes(x=carcass_age, y=prop_photos_competition))+
-  geom_jitter(width = .1, color = "grey70")+
-  geom_point(data = stat_summary, aes(y=mean), size = 3)+
-  geom_errorbar(data = stat_summary, aes(y=mean, ymin = mean-se, ymax = mean+se), width = 0)+
-  labs(x="Carcass Age", y="Proportion of photos documenting\ncompetitive interactions")+
-  theme_few()+
-  theme(axis.text.x = element_text(face = "bold"),
-        axis.text.y = element_text(face = "bold"),
-        panel.border = element_rect(linewidth = 2),
-        axis.title = element_text(face = "bold"),
-        legend.position.inside = c(.7, .7))
+        axis.title = element_text(face = "bold"))
 
 
-#Plot number of competitive interactions based on species pairs - Remove? 
+
+
+#Characterize number of competitive interactions based on species pairs
 
 species_pairs <- competitive_interactions %>%
   filter(timelapse == TRUE) %>% 
   #Count number of species interaction detections and days for each carcass
   group_by(ccam_num, keyword) %>% 
   summarize(n_detections = n(),
-            n_days = length(unique(day_num))) %>% 
+            n_days = length(unique(day_num)),
+            .groups = "drop") %>% 
   group_by(keyword) %>% 
   summarize(n_detections = sum(n_detections),
             n_days = sum(n_days),
-            detections_per_day = n_detections/n_days) %>% 
+            detections_per_day = n_detections/n_days,
+            .groups = "drop") %>% 
   mutate(keyword = fct_reorder(keyword, detections_per_day, .desc = TRUE)) #Turn into a factor in descending order
-
-
-ggplot(species_pairs, aes(x=keyword, y=detections_per_day))+
-  geom_bar(stat = "identity")
-
 
 
 ################################################################################
@@ -142,15 +151,10 @@ interaction_results <- interaction_events %>%
     outcome = case_when(
       feeding_A & !feeding_B ~ paste0(species_A, "_wins"),
       feeding_B & !feeding_A ~ paste0(species_B, "_wins"),
-      feeding_A & feeding_B  ~ "both_feeding",
-      TRUE                   ~ "neither_feeding"
-    )
-  )
+      feeding_A & feeding_B  ~ "both_feeding"))
 
-#Look into why we have "neither feeding" results!!!
 
 results_table <- interaction_results %>% 
-  filter(! outcome == "neither_feeding") %>% 
   group_by(keyword, outcome) %>% 
   summarise(
     n = n(),
@@ -162,8 +166,6 @@ results_table <- interaction_results %>%
   ungroup()
 
 print(results_table)
-
-
 
 
 #Plot! 
