@@ -101,7 +101,7 @@ length(unique(carcass_camera_data$file_name))
 # Clean Scavenger Assemblages Data ####
 #######################################
 
-scavenging_assemblages <- carcass_camera_data |>  
+scavenging_assemblage_rates <- carcass_camera_data |>  
   #remove poor image quality photos, disturbance photos, and competition photos. Note that competition photos are also tagged as "scavenging" and therefore retained for total photo counts
   filter(event_type %in% c("blank", "scavenging", "other")) |>  
   #Filter for only timelapse photos
@@ -126,13 +126,16 @@ scavenging_assemblages <- carcass_camera_data |>
                            "bird", 
                            "sparrow",
                            "plover")) |>  
-  
+  #Filter for only carcasses (carcass-age combos) with >100 monitoring photos (e.g. ~12 hrs)
+  filter(n_photos > 100) |> 
+  mutate(detection_prop = n_detections/n_photos) |> 
+  select(-n_detections) |> 
   #Pivot wider
-  pivot_wider(names_from = species_1, values_from = n_detections, values_fill = 0) |>  
+  pivot_wider(names_from = species_1, values_from = detection_prop, values_fill = 0) |>  
   clean_names()
   
 
-write_csv(scavenging_assemblages, "data/processed/scavenging_assemblages.csv")
+write_csv(scavenging_assemblage_rates, "data/processed/scavenging_assemblage_rates.csv")
 
 
 ###################################

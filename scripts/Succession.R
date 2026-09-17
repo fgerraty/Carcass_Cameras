@@ -2,7 +2,7 @@
 # Carcass Cameras ########################################################
 # Author: Frankie Gerraty (frankiegerraty@gmail.com; fgerraty@ucsc.edu) ##
 ##########################################################################
-# Succession #############################################################
+# Script 04: Succession ##################################################
 #-------------------------------------------------------------------------
 
 scavenging_assemblages <- read_csv("data/processed/scavenging_assemblages.csv") %>% 

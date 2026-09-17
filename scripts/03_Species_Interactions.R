@@ -60,13 +60,13 @@ model_means <- emmeans(comp_glmer, ~ carcass_age, type = "response",
 
 #Plot 
 
-competition_over_time_plot <- competition_over_time %>%
+competition_over_time_plot_df <- competition_over_time %>%
   group_by(ccam_num) %>%
   mutate(carcass_age_jit = as.numeric(carcass_age) + runif(1, -0.1, 0.1)) %>%
   ungroup()
 
 
-ggplot(competition_over_time_plot, aes(x = carcass_age_jit, 
+competition_over_time_plot <- ggplot(competition_over_time_plot_df, aes(x = carcass_age_jit, 
                                        y = prop_photos_competition, 
                                        group = ccam_num)) +
   geom_line(color = "grey80", alpha = .7) +
@@ -79,7 +79,7 @@ ggplot(competition_over_time_plot, aes(x = carcass_age_jit,
                     y = response_prop, 
                     ymin = LCL_prop, ymax = UCL_prop), 
                 inherit.aes = FALSE, width = 0) +
-  scale_x_continuous(breaks = c(1,2,3), labels = c("1/2", "3", "4"))+
+  scale_x_continuous(breaks = c(1,2,3), labels = c("Fresh", "Moderate", "Old"))+
   labs(x = "Carcass Age", y = "Proportion of photos documenting\ncompetitive interactions") +
   theme_few() +
   theme(axis.text.x = element_text(face = "bold"),
@@ -87,7 +87,10 @@ ggplot(competition_over_time_plot, aes(x = carcass_age_jit,
         panel.border = element_rect(linewidth = 2),
         axis.title = element_text(face = "bold"))
 
+competition_over_time_plot
 
+ggsave("output/competition_over_time.png", competition_over_time_plot,
+        width = 8.5, height = 5, units = "in", dpi = 600)
 
 
 #Characterize number of competitive interactions based on species pairs
