@@ -129,7 +129,7 @@ scavenging_assemblage_rates <- carcass_camera_data |>
   #Filter for only carcasses (carcass-age combos) with >100 monitoring photos (e.g. ~12 hrs)
   filter(n_photos > 100) |> 
   mutate(detection_prop = n_detections/n_photos) |> 
-  select(-n_detections) |> 
+  select(-n_detections, -n_photos) |> 
   #Pivot wider
   pivot_wider(names_from = species_1, values_from = detection_prop, values_fill = 0) |>  
   clean_names()

@@ -5,35 +5,80 @@
 # Script 04: Succession ##################################################
 #-------------------------------------------------------------------------
 
-scavenging_assemblages <- read_csv("data/processed/scavenging_assemblages.csv") %>% 
-  mutate(carcass_age = factor(carcass_age))
+deployment_metadata_lookup <- read_csv("data/raw/deployments.csv") |> 
+  mutate(ccam_num = as.numeric(str_extract(carcass_id, "\\d+")),
+         deploy_date_parsed = dmy(deploy_date),
+         year = year(deploy_date_parsed)) |> 
+  select(ccam_num, beach, year) |> 
+  unique()
   
+scavenging_assemblage_rates <- read_csv("data/processed/scavenging_assemblage_rates.csv") |> 
+  mutate(carcass_age = factor(carcass_age)) |> 
+  left_join(deployment_metadata_lookup, by = join_by(ccam_num)) |> 
+  mutate(insectivorous_bird = killdeer+savannah_sparrow+song_sparrow+
+                                  white_crowned_sparrow+european_starling+ 
+                                  semipalmated_plover+black_phoebe)
 
-######################################
-# Assess Succession using mvabund ####
-######################################
+########################################
+# Assess succession using PERMANOVA ####
+########################################
 
-set.seed (999)
+set.seed(999)
 
-# Create mvabund object composed of all of the scavenger species and their maxN values 
-scav_assemblage <- mvabund(scavenging_assemblages[,4:ncol(scavenging_assemblages)])
+scav_assemblage <- scavenging_assemblage_rates |> 
+  select(common_raven:mule_deer)
 
-#take a look at the abundance data
-boxplot(scavenging_assemblages[,4:ncol(scavenging_assemblages)], 
-        horizontal = TRUE, las = 2, main = "Abundance")
+predictors <- scavenging_assemblage_rates |> 
+  select(1:2) |> 
+  left_join(deployment_metadata_lookup, by = join_by(ccam_num)) |> 
+  mutate(year = factor(year),
+         carcass_age = factor(carcass_age),
+         ccam_num = factor(ccam_num))
 
-#check mean-variance relationship
-meanvar.plot(scav_assemblage)
+#Generate bray-curtis dissimilarity matrix
+distance_matrix <- vegdist(scav_assemblage, method = "bray")
+dist_mat_full <- as.matrix(distance_matrix)
+
+#Betadisper assessment
+disp_beach <- betadisper(distance_matrix, predictors$beach)
+disp_year <- betadisper(distance_matrix, predictors$year)
+disp_age  <- betadisper(distance_matrix, predictors$carcass_age)
+
+# permutation test 
+permutest(disp_beach, permutations = 9999)
+permutest(disp_year, permutations = 9999)
+permutest(disp_age, permutations = 9999)
 
 
-f1 <- manyglm(scav_assemblage ~ scavenging_assemblages$carcass_age, 
-              family = "negative_binomial", #negative binomial distribution
-              offset = log(scavenging_assemblages$n_photos)) #offset on link (log) scale
 
-anova.manyglm(f1, p.uni = "adjusted")
+#Full model
+m1 <- adonis2(distance_matrix ~ beach, data = predictors,
+              permutations = 9999, by = "terms")
+m1
 
-#Plot model to make sure no trend in residuals vs. fitted plot
-plot(f1) #Nope, a cloud of points. 
+m1 <- adonis2(distance_matrix ~ carcass_age, data = predictors,
+              permutations = 9999, by = "terms",
+              strata = predictors$ccam_num)
+m1
+
+##########################################
+# Ordination visualization ###############
+##########################################
+
+ord <- cmdscale(distance_matrix, k = 2, eig = TRUE)
+
+# Base R version
+plot(ord$points, col = as.numeric(as.factor(predictors$year)), pch = 19,
+     xlab = "PCoA1", ylab = "PCoA2", main = "Assemblage composition by year")
+legend("topright", legend = levels(as.factor(predictors$year)),
+       col = 1:length(unique(predictors$year)), pch = 19)
+
+# vegan version with convex hulls (clearer for seeing spread vs. separation)
+ordiplot(ord, type = "n", main = "Assemblage composition by year")
+ordihull(ord, predictors$year, col = 1:3, draw = "polygon", alpha = 60, label = TRUE)
+points(ord$points, col = as.numeric(as.factor(predictors$year)), pch = 19)
+
+
 
 
 
@@ -42,32 +87,79 @@ plot(f1) #Nope, a cloud of points.
 ###########################################            
 
 tuvu_mod <- glmmTMB(turkey_vulture ~ carcass_age + (1|ccam_num),
-                          data = scavenging_assemblages,
-                          offset = log(n_photos), 
-                          family = nbinom2)
+                          data = scavenging_assemblage_rates,
+                    ziformula = ~ 1,
+                    family = beta_family())
+
 summary(tuvu_mod)
+
+# Check assumptions with DHARMa package
+tuvu_mod_res = simulateResiduals(tuvu_mod)
+plot(tuvu_mod_res, rank = T)
+testDispersion(tuvu_mod_res)
+plotResiduals(tuvu_mod_res, factor(scavenging_assemblage_rates$ccam_num), xlab = "carcass #", main=NULL)
+testZeroInflation(tuvu_mod_res)
 
 
 cora_mod <- glmmTMB(common_raven ~ carcass_age + (1|ccam_num),
-                    data = scavenging_assemblages,
-                    offset = log(n_photos), 
-                    family = nbinom2)
+                    data = scavenging_assemblage_rates,
+                    ziformula = ~ 1,
+                    family = beta_family())
 summary(cora_mod)
+
+# Check assumptions with DHARMa package
+cora_mod_res = simulateResiduals(cora_mod)
+plot(cora_mod_res, rank = T)
+testDispersion(cora_mod_res)
+plotResiduals(cora_mod_res, factor(scavenging_assemblage_rates$ccam_num), xlab = "carcass #", main=NULL)
+
+
+cora_mod_simple <- glmmTMB(common_raven ~ carcass_age,
+                           data = scavenging_assemblage_rates,
+                           ziformula = ~ 1, family = beta_family())
+AIC(cora_mod, cora_mod_simple)
 
 
 ungu_mod <- glmmTMB(gull ~ carcass_age + (1|ccam_num),
-                    data = scavenging_assemblages,
-                    offset = log(n_photos), 
-                    family = nbinom2)
+                    data = scavenging_assemblage_rates,
+                    ziformula = ~ 1,
+                    family = beta_family())
 summary(ungu_mod)
 
+# Check assumptions with DHARMa package
+ungu_mod_res = simulateResiduals(ungu_mod)
+plot(ungu_mod_res, rank = T)
+testDispersion(ungu_mod_res)
+plotResiduals(ungu_mod_res, factor(scavenging_assemblage_rates$ccam_num), xlab = "carcass #", main=NULL)
+testZeroInflation(ungu_mod_res)
+testOutliers(ungu_mod_res)
 
-bird_mod <- glmmTMB(bird ~ carcass_age + (1|ccam_num),
-                    data = scavenging_assemblages,
-                    offset = log(n_photos), 
-                    family = nbinom2)
+
+bird_mod <- glmmTMB(insectivorous_bird ~ carcass_age,
+                    data = scavenging_assemblage_rates,
+                    ziformula = ~ 1,
+                    family = beta_family())
 summary(bird_mod)
 
+table(scavenging_assemblage_rates$carcass_age, 
+      scavenging_assemblage_rates$insectivorous_bird == 0)
+
+
+bird_data_reduced <- scavenging_assemblage_rates |>
+  filter(carcass_age != "1/2") |>
+  droplevels()
+
+bird_mod_reduced <- glmmTMB(insectivorous_bird ~ carcass_age,
+                            data = bird_data_reduced,
+                            ziformula = ~ 1,
+                            family = beta_family())
+summary(bird_mod_reduced)
+
+
+bird_mod_reduced_res <- simulateResiduals(bird_mod_reduced)
+plot(bird_mod_reduced_res, rank = TRUE)
+testDispersion(bird_mod_reduced_res)
+testZeroInflation(bird_mod_reduced_res)
 
 #Pivot longer for plotting
 
@@ -156,8 +248,6 @@ ggplot(plot_df, aes(x=carcass_age,
   
 
 
-install.packages("vegan")
-
 library(vegan)
 library(ggrepel)
 
@@ -170,7 +260,7 @@ scavenging_assemblages_wider <- scavenging_assemblages_longer %>%
 set.seed(99)
 
 #pull scavenger assemblage
-scav_assemblage <- data.frame(scavenging_assemblages_wider[3:ncol(scavenging_assemblages_wider)]) %>% 
+scav_assemblage <- data.frame(scavenging_assemblages[3:ncol(scavenging_assemblages_wider)]) %>% 
   filter(rowSums(.) > 0)
 
 nMDS <- metaMDS(scav_assemblage, k=2, trymax = 1000, maxit = 10000)
@@ -182,7 +272,7 @@ nMDS$stress
 nMDS_coords <- nMDS$points
 
 #combine nMDS coordinates with site name
-nMDS_coords <- cbind(scavenging_assemblages_wider, nMDS_coords)
+nMDS_coords <- cbind(predictors, nMDS_coords)
 
 ggplot(data=nMDS_coords, aes(x=MDS1, y=MDS2, color = carcass_age))+
   geom_point(size=6)

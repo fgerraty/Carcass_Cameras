@@ -8,7 +8,7 @@
 # Load packages
 packages <- c("tidyverse", "ggthemes", "overlap", "janitor", "glmmTMB", "mvabund", 
               "sf", "rnaturalearth", "rnaturalearthdata", "ggspatial", "DHARMa",
-              "emmeans")
+              "emmeans", "vegan", "ggrepel")
 
 pacman::p_load(packages, character.only = TRUE); rm(packages)
 
