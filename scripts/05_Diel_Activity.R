@@ -63,8 +63,8 @@ diel_activity_clade <- carcass_camera_data |>
 
 
 #Create temporary dataframe with all clade/hour combinations with "freq", the frequency of recorded scavenging events
-temp_df <- data.frame(clade = rep(unique(diel_activity$clade), each = 24),
-                      hour = rep(0:23, n_distinct(diel_activity$clade)),
+temp_df <- data.frame(clade = rep(unique(diel_activity_clade$clade), each = 24),
+                      hour = rep(0:23, n_distinct(diel_activity_clade$clade)),
                       freq = 0)
 
 #Combine temporary dataframe with "activity_df" and filter to that there is a value (>= 0) for each species/hour combination
@@ -171,3 +171,149 @@ activity_plot_spp
 ggsave( "output/diel_activity_spp.png", activity_plot_spp,
        width = 8.5, height = 10, units = "in", dpi = 600)
 
+
+#######################################################
+# Assess TUVU impacts on CORA + UNGU diel activity ####
+#######################################################
+
+cora_activity <- carcass_camera_data |> 
+  filter(event_type == "scavenging") |>   #Remove species interactions
+  filter(!str_detect(file_name, "MT")) |> 
+  filter(timelapse == TRUE) |> 
+  bind_rows(independent_nocturnal) |> 
+  group_by(ccam_num, day_num) |> 
+  mutate(tuvu_present = "turkey vulture" %in% species_1) |> 
+  filter(species_1 == "common raven")
+
+  
+cam_days <- carcass_camera_data |>
+  filter(event_type == "scavenging", !str_detect(file_name, "MT"), timelapse == TRUE) |>
+  bind_rows(independent_nocturnal) |>
+  group_by(ccam_num, day_num) |>
+  summarise(tuvu_present = "turkey vulture" %in% species_1, .groups = "drop")
+
+# hourly raven presence (adjust hr to your time column)
+raven_hrs <- cora_activity |> ungroup() |>
+  mutate(hr = lubridate::hour(date_time)) |>
+  distinct(ccam_num, day_num, hr) |>
+  mutate(cora = 1L)
+
+dat <- cam_days |>
+  tidyr::expand_grid(hr = 0:23) |>
+  left_join(raven_hrs, by = c("ccam_num", "day_num", "hr")) |>
+  mutate(cora = tidyr::replace_na(cora, 0L),
+         tuvu = factor(tuvu_present, levels = c(FALSE, TRUE), ordered = TRUE),
+         ccam_num = factor(ccam_num),
+         cam_day = interaction(ccam_num, day_num))
+
+m <- bam(cora ~ tuvu + s(hr, bs = "cc", k = 8) + s(hr, by = tuvu, bs = "cc", k = 8) +
+           s(day_num, k = 5) +               # carcass age
+           s(ccam_num, bs = "re") + s(cam_day, bs = "re"),
+         family = binomial, data = dat, knots = list(hr = c(0, 24)),
+         discrete = TRUE)
+summary(m)
+
+
+library(gratia)
+
+# 1. Predicted diel curves (population level, random effects excluded)
+newd <- expand_grid(
+  hr   = seq(0, 24, length.out = 100),
+  tuvu = factor(c(FALSE, TRUE), levels = c(FALSE, TRUE), ordered = TRUE)
+) |>
+  mutate(day_num  = median(dat$day_num),
+         ccam_num = dat$ccam_num[1],   # placeholder, ignored via exclude
+         cam_day  = dat$cam_day[1])    # placeholder, ignored via exclude
+
+pr <- predict(m, newd, se.fit = TRUE, type = "link",
+              exclude = c("s(ccam_num)", "s(cam_day)"))
+
+newd |>
+  mutate(fit = pr$fit, se = pr$se.fit,
+         p   = plogis(fit),
+         lwr = plogis(fit - 1.96 * se),
+         upr = plogis(fit + 1.96 * se)) |>
+  ggplot(aes(hr, p, colour = tuvu, fill = tuvu)) +
+  geom_ribbon(aes(ymin = lwr, ymax = upr), alpha = 0.2, colour = NA) +
+  geom_line(linewidth = 1) +
+  scale_x_continuous(breaks = seq(0, 24, 6)) +
+  labs(x = "Hour of day", y = "P(raven present | typical camera-day)",
+       colour = "TUVU present", fill = "TUVU present") +
+  theme_classic()
+
+# 2. Difference smooth (TRUE minus FALSE); this is what the p = 0.13 tests
+draw(m, select = "s(hr):tuvuTRUE")
+
+
+
+
+
+
+
+ungu_activity <- carcass_camera_data |> 
+  filter(event_type == "scavenging") |>   #Remove species interactions
+  filter(!str_detect(file_name, "MT")) |> 
+  filter(timelapse == TRUE) |> 
+  bind_rows(independent_nocturnal) |> 
+  group_by(ccam_num, day_num) |> 
+  mutate(tuvu_present = "turkey vulture" %in% species_1) |> 
+  filter(species_1 == "gull")
+
+
+cam_days <- carcass_camera_data |>
+  filter(event_type == "scavenging", !str_detect(file_name, "MT"), timelapse == TRUE) |>
+  bind_rows(independent_nocturnal) |>
+  group_by(ccam_num, day_num) |>
+  summarise(tuvu_present = "turkey vulture" %in% species_1, .groups = "drop")
+
+# hourly ungu presence (adjust hr to your time column)
+ungu_hrs <- ungu_activity |> ungroup() |>
+  mutate(hr = lubridate::hour(date_time)) |>
+  distinct(ccam_num, day_num, hr) |>
+  mutate(ungu = 1L)
+
+dat <- cam_days |>
+  tidyr::expand_grid(hr = 0:23) |>
+  left_join(ungu_hrs, by = c("ccam_num", "day_num", "hr")) |>
+  mutate(ungu = tidyr::replace_na(ungu, 0L),
+         tuvu = factor(tuvu_present, levels = c(FALSE, TRUE), ordered = TRUE),
+         ccam_num = factor(ccam_num),
+         cam_day = interaction(ccam_num, day_num))
+
+m <- bam(ungu ~ tuvu + s(hr, bs = "cc", k = 8) + s(hr, by = tuvu, bs = "cc", k = 8) +
+           s(day_num, k = 5) +               # carcass age
+           s(ccam_num, bs = "re") + s(cam_day, bs = "re"),
+         family = binomial, data = dat, knots = list(hr = c(0, 24)),
+         discrete = TRUE)
+summary(m)
+
+
+library(gratia)
+
+# 1. Predicted diel curves (population level, random effects excluded)
+newd <- expand_grid(
+  hr   = seq(0, 24, length.out = 100),
+  tuvu = factor(c(FALSE, TRUE), levels = c(FALSE, TRUE), ordered = TRUE)
+) |>
+  mutate(day_num  = median(dat$day_num),
+         ccam_num = dat$ccam_num[1],   # placeholder, ignored via exclude
+         cam_day  = dat$cam_day[1])    # placeholder, ignored via exclude
+
+pr <- predict(m, newd, se.fit = TRUE, type = "link",
+              exclude = c("s(ccam_num)", "s(cam_day)"))
+
+newd |>
+  mutate(fit = pr$fit, se = pr$se.fit,
+         p   = plogis(fit),
+         lwr = plogis(fit - 1.96 * se),
+         upr = plogis(fit + 1.96 * se)) |>
+  ggplot(aes(hr, p, colour = tuvu, fill = tuvu)) +
+  geom_ribbon(aes(ymin = lwr, ymax = upr), alpha = 0.2, colour = NA) +
+  geom_line(linewidth = 1) +
+  scale_x_continuous(breaks = seq(0, 24, 6)) +
+  labs(x = "Hour of day", y = "P(raven present | typical camera-day)",
+       colour = "TUVU present", fill = "TUVU present") +
+  theme_classic()
+
+# 2. Difference smooth (TRUE minus FALSE); this is what the p = 0.13 tests
+draw(m, select = "s(hr):tuvuTRUE")
