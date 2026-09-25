@@ -182,16 +182,47 @@ scavenger_summary <- carcass_camera_data |>
   #Clean species names
   mutate(species = case_when(
     species_1 == "bird" ~ "bird (Aves)", 
-    species_1 == "turkey vulture/common raven/American crow" ~ "large bird (Aves)",
+    species_1 == "turkey vulture/common raven/American crow" ~ "bird (Aves)",
     species_1 == "gull" ~ "gull (Larus spp.)",
     species_1 == "rodent" ~ "rodent (Rodentia)",
     species_1 == "sparrow" ~ "sparrow (Passerellidae)",
     species_1 == "songbird" ~ "songbird (Passeri)",
     species_1 == "plover" ~ "plover (Charadriinae)",
     TRUE ~ species_1)) |>  
-  group_by(species, timelapse) |>  
+  mutate(label = case_when(
+    species == "American crow" ~ "American crow", 
+    species == "Bonaparte's gull" ~ "Bonaparte's gull",
+    species == "European starling" ~ "European starling",
+    species == "bird (Aves)" ~ "Unidentified bird (Aves)",
+    species == "black phoebe" ~ "Black phoebe",
+    species == "brush rabbit" ~ "Brush rabbit", 
+    species == "common raven" ~ "Common raven",
+    species == "coyote" ~ "Coyote",
+    species == "deer mouse" ~ "Deer mouse (Peromyscus spp.)",
+    species == "garter snake" ~ "Garter snake (Thamnophis spp.)",
+    species == "golden-crowned sparrow" ~ "Golden-crowned sparrow",
+    species == "gray fox" ~ "Gray fox",
+    species == "gull (Larus spp.)" ~ "Gull (Larus spp.)", 
+    species == "house finch" ~ "House finch",
+    species == "house sparrow" ~ "House sparrow", 
+    species == "killdeer" ~ "Killdeer",
+    species == "mule deer" ~ "Mule deer",
+    species == "northern elephant seal" ~ "Northern elephant seal",
+    species == "plover (Charadriinae)" ~ "Plover (Charadriinae)",
+    species == "rodent (Rodentia)" ~ "Rodent (Rodentia)",
+    species == "savannah sparrow" ~ "Savannah sparrow",
+    species == "semipalmated plover" ~ "Semipalmated plover",
+    species == "song sparrow" ~ "Song sparrow",
+    species == "songbird (Passeri)" ~ "Songbird (Passeri)",
+    species == "sparrow (Passerellidae)" ~ "Sparrow (Passerellidae)",
+    species == "turkey vulture" ~ "Turkey vulture",
+    species == "virginia opossum" ~ "Virginia opossum",
+    species == "western fence lizard" ~ "Western fence lizard",
+    species == "white-crowned sparrow" ~ "White-crowned sparrow",
+    species == "woodrat" ~ "Dusky-footed woodrat")) |> 
+  group_by(species, label, timelapse) |>  
   summarise(n_detections = n(), .groups = "drop")  |>  
-  group_by(species) |>  
+  group_by(species, label) |>  
   mutate(total = sum(n_detections)) |>  
   ungroup() |>  
   mutate(species = fct_reorder(species, total, .desc = TRUE))
@@ -214,6 +245,11 @@ sum((carcass_camera_data |>
 
 #Summary plot 
 
+label_lookup <- scavenger_summary |>
+  distinct(species, label) |>
+  arrange(species)
+
+
 scav_summary_plot <- ggplot(scavenger_summary, aes(x=species, y=n_detections, fill = timelapse))+
   geom_bar(stat="identity")+
   geom_text(
@@ -225,6 +261,7 @@ scav_summary_plot <- ggplot(scavenger_summary, aes(x=species, y=n_detections, fi
        fill = "Photo Type")+
   scale_fill_manual(values = c("#378EC4", "#173753"), labels = c("Motion-triggered", "Timelapse"))+
   scale_y_continuous(limits = c(0, 17000))+
+  scale_x_discrete(labels = label_lookup$label)+
   theme_few()+
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         axis.text.y = element_text(face = "bold"),

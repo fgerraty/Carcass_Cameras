@@ -66,49 +66,42 @@ competition_over_time_plot_df <- competition_over_time %>%
   ungroup()
 
 
-competition_over_time_plot <- ggplot(competition_over_time_plot_df, aes(x = carcass_age_jit, 
+competition_over_time_plot <- ggplot(competition_over_time_plot_df, 
+                                       aes(x = carcass_age_jit, 
                                        y = prop_photos_competition, 
                                        group = ccam_num)) +
-  geom_line(color = "grey80", alpha = .7) +
-  geom_point(color = "grey80") +
-  geom_point(data = model_means, aes(x = as.numeric(carcass_age), 
-                                     y = response_prop), 
-             inherit.aes = FALSE, size = 3) +
+  geom_line(color = "grey80", alpha = .4) +
+  geom_point(shape = 16, aes(color = carcass_age), alpha = .7) +
   geom_errorbar(data = model_means, 
                 aes(x = as.numeric(carcass_age), 
                     y = response_prop, 
                     ymin = LCL_prop, ymax = UCL_prop), 
-                inherit.aes = FALSE, width = 0) +
+                inherit.aes = FALSE, width =0, 
+                linewidth = 1
+                ) +
+  geom_point(data = model_means, aes(x = as.numeric(carcass_age), 
+                                     y = response_prop), 
+             inherit.aes = FALSE, size = 4) +
+  geom_point(data = model_means, aes(x = as.numeric(carcass_age), 
+                                     y = response_prop, 
+                                     color = carcass_age), 
+             inherit.aes = FALSE, size = 2) +
+
   scale_x_continuous(breaks = c(1,2,3), labels = c("Fresh", "Moderate", "Old"))+
+  scale_color_manual(labels = c("Fresh", "Moderate", "Old"), 
+                     values = c("#648FFF","#FFB000", "#DC267F"))+
   labs(x = "Carcass Age", y = "Proportion of photos documenting\ncompetitive interactions") +
   theme_few() +
   theme(axis.text.x = element_text(face = "bold"),
         axis.text.y = element_text(face = "bold"),
         panel.border = element_rect(linewidth = 2),
-        axis.title = element_text(face = "bold"))
+        axis.title = element_text(face = "bold"),
+        legend.position = "none")
 
 competition_over_time_plot
 
 ggsave("output/competition_over_time.png", competition_over_time_plot,
         width = 8.5, height = 5, units = "in", dpi = 600)
-
-
-#Characterize number of competitive interactions based on species pairs
-
-species_pairs <- competitive_interactions %>%
-  filter(timelapse == TRUE) %>% 
-  #Count number of species interaction detections and days for each carcass
-  group_by(ccam_num, keyword) %>% 
-  summarize(n_detections = n(),
-            n_days = length(unique(day_num)),
-            .groups = "drop") %>% 
-  group_by(keyword) %>% 
-  summarize(n_detections = sum(n_detections),
-            n_days = sum(n_days),
-            detections_per_day = n_detections/n_days,
-            .groups = "drop") %>% 
-  mutate(keyword = fct_reorder(keyword, detections_per_day, .desc = TRUE)) #Turn into a factor in descending order
-
 
 ################################################################################
 # Focal Competitive Interactions: Vultures, Ravens, Gulls ######################
@@ -221,12 +214,12 @@ side_labels <- diverging %>%
   distinct(keyword, right_sp, left_sp)
 
 pal <- c(
-  "turkey vulture_wins" = "#dc267f",
+  "turkey vulture_wins" = "#d95f02",
   "both_feeding_pos"    = "gray",
   "both_feeding_neg"    = "gray",
-  "common raven_wins"   = "#648fff",
-  "common_raven_beats_gull"   = "#648fff",
-  "gull_wins"           = "#ffb000"
+  "common raven_wins"   = "#1b9e77",
+  "common_raven_beats_gull"   = "#1b9e77",
+  "gull_wins"           = "#7570b3"
 )
 
 
@@ -248,8 +241,7 @@ ggplot(diverging, aes(x = prop_signed, y = keyword, fill = outcome)) +
     labels   = ~ scales::percent(abs(.x), accuracy = 1),
     limits   = c(-1.05, 1.05),
     breaks   = seq(-0.75, 0.75, 0.25),
-    expand   = c(0, 0)
-  ) +
+    expand   = c(0, 0)) +
   scale_fill_manual(
     values = pal,
     breaks = c("turkey vulture_wins",  "common raven_wins", "gull_wins", "both_feeding_pos"),
@@ -265,9 +257,8 @@ ggplot(diverging, aes(x = prop_signed, y = keyword, fill = outcome)) +
     panel.grid.minor   = element_blank(),
     plot.title         = element_text(face = "bold", size = 14),
     plot.subtitle      = element_text(color = "grey50", size = 11),
-    axis.text.y        = element_blank(),   # replaced by side labels
-    axis.ticks.y       = element_blank()
-  )
+    axis.text.y        = element_blank(),
+    axis.ticks.y       = element_blank(),)
 
 ggsave("output/competitive_interactions.png", 
        width = 8.5, height = 5, units = "in", dpi = 600)
