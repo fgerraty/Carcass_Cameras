@@ -36,7 +36,8 @@ competition_over_time <- carcass_camera_data %>%
 
 
 #Linear mixed effects model 
-comp_glmer <- glmmTMB(n_competitive_interactions ~ carcass_age + offset(log(n_photos)) +
+comp_glmer <- glmmTMB(n_competitive_interactions ~ carcass_age + 
+                        offset(log(n_photos)) +
                         (1 | ccam_num),
                      family = nbinom1,
                      data = competition_over_time)

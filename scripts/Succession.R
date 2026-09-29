@@ -19,16 +19,23 @@ scavenging_assemblage_rates <- read_csv("data/processed/scavenging_assemblage_ra
                                   white_crowned_sparrow+european_starling+ 
                                   semipalmated_plover+black_phoebe)
 
+scavenging_assemblage_rates2 <- read_csv("data/processed/scavenging_assemblage_rates2.csv") |> 
+  mutate(carcass_age = factor(carcass_age)) |> 
+  left_join(deployment_metadata_lookup, by = join_by(ccam_num)) |> 
+  mutate(insectivorous_bird = killdeer+savannah_sparrow+song_sparrow+
+           white_crowned_sparrow+european_starling+ 
+           semipalmated_plover+black_phoebe)
+
 ########################################
 # Assess succession using PERMANOVA ####
 ########################################
 
 set.seed(999)
 
-scav_assemblage <- scavenging_assemblage_rates |> 
+scav_assemblage <- scavenging_assemblage_rates2 |> 
   select(common_raven:mule_deer)
 
-predictors <- scavenging_assemblage_rates |> 
+predictors <- scavenging_assemblage_rates2 |> 
   select(1:2) |> 
   left_join(deployment_metadata_lookup, by = join_by(ccam_num)) |> 
   mutate(year = factor(year),
@@ -52,14 +59,15 @@ permutest(disp_age, permutations = 9999)
 
 
 #Full model
-m1 <- adonis2(distance_matrix ~ beach, data = predictors,
+m1 <- adonis2(distance_matrix ~ beach + carcass_age, data = predictors,
+              strata = predictors$ccam_num,
               permutations = 9999, by = "terms")
 m1
 
-m1 <- adonis2(distance_matrix ~ carcass_age, data = predictors,
+m2 <- adonis2(distance_matrix ~ carcass_age, data = predictors,
               permutations = 9999, by = "terms",
               strata = predictors$ccam_num)
-m1
+m2
 
 ##########################################
 # Ordination visualization ###############
@@ -87,7 +95,7 @@ points(ord$points, col = as.numeric(as.factor(predictors$year)), pch = 19)
 ###########################################            
 
 tuvu_mod <- glmmTMB(turkey_vulture ~ carcass_age + (1|ccam_num),
-                          data = scavenging_assemblage_rates,
+                          data = scavenging_assemblage_rates2,
                     ziformula = ~ 1,
                     family = beta_family())
 
@@ -277,6 +285,10 @@ nMDS_coords <- cbind(predictors, nMDS_coords)
 ggplot(data=nMDS_coords, aes(x=MDS1, y=MDS2, color = carcass_age))+
   geom_point(size=6)
   
+
+ggplot(data=nMDS_coords, aes(x=MDS1, y=MDS2, color = beach))+
+  geom_point(size=6)
+
 
 fit <- envfit(nMDS, scav_assemblage, permutations = 999)
 fit  # shows r2 and p-value per species
