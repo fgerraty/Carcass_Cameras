@@ -63,7 +63,7 @@ model_means <- emmeans(comp_glmer, ~ carcass_age, type = "response",
 
 competition_over_time_plot_df <- competition_over_time %>%
   group_by(ccam_num) %>%
-  mutate(carcass_age_jit = as.numeric(carcass_age) + runif(1, -0.1, 0.1)) %>%
+  mutate(carcass_age_jit = as.numeric(carcass_age) + runif(1, -0.2, 0.2)) %>%
   ungroup()
 
 
@@ -72,7 +72,7 @@ competition_over_time_plot <- ggplot(competition_over_time_plot_df,
                                        y = prop_photos_competition, 
                                        group = ccam_num)) +
   geom_line(color = "grey80", alpha = .4) +
-  geom_point(shape = 16, aes(color = carcass_age), alpha = .7) +
+  geom_point(shape = 16, aes(color = carcass_age, size = n_photos), alpha = .5) +
   geom_errorbar(data = model_means, 
                 aes(x = as.numeric(carcass_age), 
                     y = response_prop, 
@@ -82,27 +82,32 @@ competition_over_time_plot <- ggplot(competition_over_time_plot_df,
                 ) +
   geom_point(data = model_means, aes(x = as.numeric(carcass_age), 
                                      y = response_prop), 
-             inherit.aes = FALSE, size = 4) +
+             inherit.aes = FALSE, size = 5) +
   geom_point(data = model_means, aes(x = as.numeric(carcass_age), 
                                      y = response_prop, 
                                      color = carcass_age), 
-             inherit.aes = FALSE, size = 2) +
+             inherit.aes = FALSE, size = 3) +
 
   scale_x_continuous(breaks = c(1,2,3), labels = c("Fresh", "Moderate", "Old"))+
   scale_color_manual(labels = c("Fresh", "Moderate", "Old"), 
                      values = c("#648FFF","#FFB000", "#DC267F"))+
-  labs(x = "Carcass Age", y = "Proportion of photos documenting\ncompetitive interactions") +
+  labs(x = "Carcass age", 
+       y = "Proportion of photos documenting\ncompetitive interactions",
+       size = "Number of\nPhotos") +
+  guides(color = "none")+
   theme_few() +
   theme(axis.text.x = element_text(face = "bold"),
         axis.text.y = element_text(face = "bold"),
         panel.border = element_rect(linewidth = 2),
         axis.title = element_text(face = "bold"),
-        legend.position = "none")
+        legend.position = "inside", 
+        legend.position.inside = c(.9, .8)
+        )
 
 competition_over_time_plot
 
 ggsave("output/competition_over_time.png", competition_over_time_plot,
-        width = 8.5, height = 5, units = "in", dpi = 600)
+        width = 5, height = 5, units = "in", dpi = 600)
 
 ################################################################################
 # Focal Competitive Interactions: Vultures, Ravens, Gulls ######################
@@ -224,15 +229,17 @@ pal <- c(
 )
 
 
-ggplot(diverging, aes(x = prop_signed, y = keyword, fill = outcome)) +
+competitive_interactions_plot <- ggplot(diverging, aes(x = prop_signed, 
+                                                       y = keyword, 
+                                                       fill = outcome)) +
   geom_col(width = 0.6, position = position_stack(reverse = TRUE)) +
   geom_vline(xintercept = 0, linewidth = 0.9, color = "grey20") +
   geom_text(data = side_labels,
-            aes(x =  0.82, y = keyword, label = str_to_title(right_sp)),
+            aes(x =  0.77, y = keyword, label = str_to_title(right_sp)),
             hjust = 0, size = 3.2, fontface = "italic", color = "grey30",
             inherit.aes = FALSE) +
   geom_text(data = side_labels,
-            aes(x = -0.82, y = keyword, label = str_to_title(left_sp)),
+            aes(x = -0.52, y = keyword, label = str_to_title(left_sp)),
             hjust = 1, size = 3.2, fontface = "italic", color = "grey30",
             inherit.aes = FALSE) +
   geom_text(aes(label = n_label),
@@ -240,27 +247,29 @@ ggplot(diverging, aes(x = prop_signed, y = keyword, fill = outcome)) +
             size = 3, color = "white", fontface = "bold", na.rm = TRUE)+
   scale_x_continuous(
     labels   = ~ scales::percent(abs(.x), accuracy = 1),
-    limits   = c(-1.05, 1.05),
-    breaks   = seq(-0.75, 0.75, 0.25),
+    limits   = c(-1, 1.5),
+    breaks   = seq(-0.5, 0.75, 0.25),
     expand   = c(0, 0)) +
   scale_fill_manual(
     values = pal,
     breaks = c("turkey vulture_wins",  "common raven_wins", "gull_wins", "both_feeding_pos"),
-    labels = c("Turkey vulture feeding", "Common raven feeding", "Gull feeding", "Both feeding"),
+    labels = c("Turkey vulture\nfeeding", "Common raven\nfeeding", "Gull feeding", "Both feeding"),
     name   = NULL
   )+
   labs(x = "Proportion of competitive interactions", y = NULL,) +
-  theme_minimal(base_size = 13) +
+  theme_minimal() +
   theme(
     legend.position    = "bottom",
-    legend.key.size    = unit(0.45, "cm"),
+  #  legend.key.spacing.y = unit(8, "pt"),
     panel.grid.major.y = element_blank(),
     panel.grid.minor   = element_blank(),
-    plot.title         = element_text(face = "bold", size = 14),
-    plot.subtitle      = element_text(color = "grey50", size = 11),
     axis.text.y        = element_blank(),
-    axis.ticks.y       = element_blank(),)
+    axis.ticks.y       = element_blank(),
+    axis.text.x = element_text(face = "bold"),
+    axis.title = element_text(face = "bold"),
+    )
+competitive_interactions_plot
 
 ggsave("output/competitive_interactions.png", 
-       width = 8.5, height = 5, units = "in", dpi = 600)
+       width = 5, height = 5, units = "in", dpi = 600)
 
