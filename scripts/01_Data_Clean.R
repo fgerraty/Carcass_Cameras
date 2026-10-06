@@ -117,7 +117,6 @@ scavenging_assemblage_rates <- carcass_camera_data |>
   #Calculate number of photos in which each scavenger species was detected
   group_by(ccam_num, carcass_age, n_photos, species_1) |>  
   summarise(n_detections = length(unique(file_name)),
-            n_scavengers = sum(count),
             .groups = "drop") |>  
   
   #Filter out species / groups that are not of interest or not IDed to low enough taxonomic level
@@ -170,7 +169,7 @@ scavenging_assemblage_rates2 <- carcass_camera_data |>
   #Filter for only carcasses (carcass-age combos) with >100 monitoring photos (e.g. ~12 hrs)
   filter(n_photos > 100) |> 
   mutate(detection_rate = n_scavengers/n_photos) |> 
-  select(-n_detections, -n_photos) |> 
+  select(-n_detections, -n_scavengers, -n_photos) |> 
   #Pivot wider
   pivot_wider(names_from = species_1, values_from = detection_rate, values_fill = 0) |>  
   clean_names()
@@ -211,6 +210,44 @@ scavenging_assemblage_counts <- carcass_camera_data |>
 
 
 write_csv(scavenging_assemblage_counts, "data/processed/scavenging_assemblage_counts.csv")
+
+
+scavenging_assemblage_counts2 <- carcass_camera_data |>  
+  #remove poor image quality photos, disturbance photos, and competition photos. Note that competition photos are also tagged as "scavenging" and therefore retained for total photo counts
+  filter(event_type %in% c("blank", "scavenging", "other")) |>  
+  #Filter for only timelapse photos
+  filter(timelapse == TRUE) |>  
+  #Group carcass age stages 1 and 2
+  mutate(carcass_age = if_else(carcass_age %in% c(1,2), "1/2", 
+                               as.character(carcass_age)), 
+         #Turn into a factor
+         carcass_age = factor(carcass_age, levels = c("1/2","3","4"))) |>  
+  #Calculate number of unique photos taken per carcass / decomposition level combo
+  group_by(ccam_num, carcass_age) |>  
+  mutate(n_photos = length(unique(file_name))) |>  
+  #Calculate number of photos in which each scavenger species was detected
+  group_by(ccam_num, carcass_age, n_photos, species_1) |>  
+  summarise(n_scavengers = sum(count),
+            .groups = "drop") |>  
+  
+  #Filter out species / groups that are not of interest or not IDed to low enough taxonomic level
+  filter(!species_1 %in% c(NA, "northern elephant seal", 
+                           "turkey vulture/common raven/American crow", 
+                           "rodent",
+                           "songbird",
+                           "bird", 
+                           "sparrow",
+                           "plover")) |>  
+  #Filter for only carcasses (carcass-age combos) with >100 monitoring photos (e.g. ~12 hrs)
+  filter(n_photos > 100) |> 
+  #Pivot wider
+  pivot_wider(names_from = species_1, values_from = n_scavengers, values_fill = 0) |>  
+  clean_names()
+
+
+write_csv(scavenging_assemblage_counts2, "data/processed/scavenging_assemblage_counts2.csv")
+
+
 
 
 ###################################
@@ -254,22 +291,27 @@ scavenger_summary <- carcass_camera_data |>
     species == "semipalmated plover" ~ "Semipalmated plover",
     species == "song sparrow" ~ "Song sparrow",
     species == "songbird (Passeri)" ~ "Songbird (Passeri)",
-    species == "sparrow (Passerellidae)" ~ "Sparrow (Passerellidae)",
+    species == "sparrow (Passerellidae)" ~ "New World sparrow (Passerellidae)",
     species == "turkey vulture" ~ "Turkey vulture",
     species == "virginia opossum" ~ "Virginia opossum",
     species == "western fence lizard" ~ "Western fence lizard",
     species == "white-crowned sparrow" ~ "White-crowned sparrow",
     species == "woodrat" ~ "Dusky-footed woodrat")) |> 
   group_by(species, label, timelapse) |>  
-  summarise(n_detections = n(), .groups = "drop")  |>  
+  summarise(n_detections = n(), 
+            n_interactions = sum(count), 
+            .groups = "drop")  |>  
   group_by(species, label) |>  
-  mutate(total = sum(n_detections)) |>  
-  ungroup() |>  
-  mutate(species = fct_reorder(species, total, .desc = TRUE))
+  mutate(total_detections = sum(n_detections), 
+         total_interactions = sum(n_interactions)) |>  
+  ungroup() |> 
+  mutate(species = fct_reorder(species, total_interactions, .desc = TRUE))
 
-
-#How many scavenging events
+#How many scavenging photos
 sum(scavenger_summary$n_detections)
+
+#How many carcass-scavenger interactions
+sum(scavenger_summary$n_interactions)
 
 #How many monitoring days
 
@@ -285,22 +327,34 @@ sum((carcass_camera_data |>
 
 #Summary plot 
 
-label_lookup <- scavenger_summary |>
+plot_df <- scavenger_summary |> 
+  #Remove taxa not identified to Family, Genus, or Species (and Northern Elephant Seals)
+  filter(!species %in% c("bird (Aves)", "rodent (Rodentia)", 
+                         "songbird (Passeri)", "northern elephant seal"))
+
+
+
+
+
+
+label_lookup <- plot_df |>
   distinct(species, label) |>
   arrange(species)
 
 
-scav_summary_plot <- ggplot(scavenger_summary, aes(x=species, y=n_detections, fill = timelapse))+
+scav_summary_plot <- ggplot(plot_df, aes(x=species, 
+                                                   y=n_interactions, 
+                                                   fill = timelapse))+
   geom_bar(stat="identity")+
   geom_text(
-    aes(x = species, y = total, label = total),
+    aes(x = species, y = total_interactions, label = total_interactions),
     vjust = -0.3, size = 2.2
   ) +
-  labs(x="Scavenger Species", 
-       y="Total Number of Scavenging Observations", 
+  labs(x="Scavenger Taxa", 
+       y="Number of Scavenger-Carcass\nInteractions", 
        fill = "Photo Type")+
   scale_fill_manual(values = c("#378EC4", "#173753"), labels = c("Motion-triggered", "Timelapse"))+
-  scale_y_continuous(limits = c(0, 17000))+
+#  scale_y_continuous(limits = c(0, 17000))+
   scale_x_discrete(labels = label_lookup$label)+
   theme_few()+
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
