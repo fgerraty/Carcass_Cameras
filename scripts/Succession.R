@@ -27,6 +27,11 @@ scavenging_assemblage_rates2 <- read_csv("data/processed/scavenging_assemblage_r
            semipalmated_plover+black_phoebe)
 
 
+scavenging_assemblage_counts <- read_csv("data/processed/scavenging_assemblage_counts.csv") |> 
+  mutate(insectivorous_bird = killdeer+savannah_sparrow+song_sparrow+
+           white_crowned_sparrow+european_starling+ 
+           semipalmated_plover+black_phoebe)
+
 scavenging_assemblage_counts2 <- read_csv("data/processed/scavenging_assemblage_counts2.csv") |> 
   mutate(insectivorous_bird = killdeer+savannah_sparrow+song_sparrow+
            white_crowned_sparrow+european_starling+ 
@@ -107,9 +112,9 @@ ggplot(data=nMDS_coords, aes(x=MDS1, y=MDS2, color = year))+
   geom_point(size=6)
 
 
-nmds_nolabel <- ggplot(data = nMDS_coords, aes(x = MDS1, y = MDS2, 
+nmds_carcass_age <- ggplot(data = nMDS_coords, aes(x = MDS1, y = MDS2, 
                                                color = carcass_age)) +
-  geom_point(size = 4, shape=16, alpha=.9) +
+  geom_point(size = 4, shape=16, alpha=.85) +
   scale_color_manual(labels = c("Fresh", "Moderate", "Old"), 
                      values = c("#dc267f","#648fff", "#ffb000"))+
   labs(x="NMDS1", y="NMDS2", color = "Carcass Age")+
@@ -117,171 +122,294 @@ nmds_nolabel <- ggplot(data = nMDS_coords, aes(x = MDS1, y = MDS2,
   theme_few()+
   theme(panel.border = element_rect(linewidth = 2),
                axis.title = element_text(face = "bold"),
-               legend.title = element_text(face = "bold"),)
-nmds_nolabel
+               legend.title = element_text(face = "bold"))
+nmds_carcass_age
   
-
-nmds_label <- ggplot(data = nMDS_coords, aes(x = MDS1, y = MDS2, color = carcass_age)) +
-  geom_point(size = 4, shape=16, alpha=.9) +
-  geom_point(data = species_df, aes(x = NMDS1, y = NMDS2), inherit.aes = FALSE,
-             shape = 17, size = 3, color = "black") +
-  geom_text_repel(data = species_df, aes(x = NMDS1, y = NMDS2, label = species), 
-                  inherit.aes = FALSE, vjust = -0.5, size = 3)+
-  scale_color_manual(labels = c("Fresh", "Moderate", "Old"), 
-                     values = c("#dc267f","#648fff", "#ffb000"))+
-  labs(x="NMDS1", y="NMDS2", color = "Carcass Age")+
-  coord_cartesian(xlim = c(-2, 8.5))+
-  theme_few()+
-  theme(panel.border = element_rect(linewidth = 2),
-        axis.title = element_text(face = "bold"),
-        legend.title = element_text(face = "bold"),)
-
-
-ggsave("output/nmds_nolabel.png", nmds_nolabel, 
-       width = 8, height = 6, units = "in", dpi = 600)
-
-ggsave("output/nmds_label.png", nmds_label, 
-       width = 8, height = 6, units = "in", dpi = 600)
-
-
-
-
-
-
-#Plot for talk
-
-plot_df <- scavenging_assemblages %>% 
-  pivot_longer(cols = c(4:18),
-               names_to = "species_id", 
-               values_to = "detection_count") %>% 
-  mutate(carcass_age = factor(carcass_age, levels = c( "1/2", "3", "4")),
-         detection_proportion = detection_count/n_photos,
-         species_id = if_else(
-           species_id %in% c("killdeer", "savannah_sparrow", "song_sparrow",
-                             "white_crowned_sparrow", "european_starling",
-                             "semipalmated_plover","black_phoebe"), 
-           "insectivorous_bird", species_id)) |> 
-  group_by(ccam_num, carcass_age, n_photos, species_id) |> 
-  summarise(count = sum(detection_count), .groups="drop") |> 
-  mutate(detection_rate = count/n_photos) |> 
-  filter(species_id %in% c("turkey_vulture", "insectivorous_bird")) |> 
-  mutate(species_id = case_when(
-          species_id == "turkey_vulture"~"Turkey Vulture", 
-          species_id == "insectivorous_bird" ~ "Insectivorous Bird"),
-          species_id = factor(species_id, 
-                             levels = c("Turkey Vulture", "Insectivorous Bird")))
-
-plot_df_summary <- plot_df %>% 
-  group_by(species_id, carcass_age) %>% 
-  summarise(mean = mean(detection_rate), 
-            ci = 1.96 * sd(detection_rate)/sqrt(n()))
-
-
-succ_temp <- ggplot(plot_df, aes(x=as.character(carcass_age), 
-                    y=detection_rate, #transformed to hours
-                    fill = species_id))+
-  geom_point(color = "grey")+
-  geom_pointrange(data =plot_df_summary, aes(y=mean, 
-                                             ymin = mean-ci, 
-                                             ymax = mean+ci))+
-  facet_wrap(facets = "species_id", scales = "free_y")+
-  scale_x_discrete(labels = c("Fresh", "Moderate", "Old"))+
-  labs(y ="Proportion of time detected on carcass", 
-       x = "Carcass age", 
-       fill = "Species ID")+
-  theme_few()+
-  theme(panel.border = element_rect(linewidth = 2),
-        strip.text = element_text(face = "bold"),
-        axis.title.x = element_text(face = "bold"),
-        axis.title.y = element_text(face = "bold"),
-        legend.position="none",)
-
-
-ggsave("output/succ_temp.png", succ_temp, 
-       width = 8, height = 5, units = "in", dpi = 600)
-
-
-
+ggsave("output/extra_plots/nmds_carcass_age.png", nmds_carcass_age, 
+       width = 5, height = 5, units = "in", dpi = 600)
 
 
 ###########################################
-# Individual glmms for primary species ####
+# Individual glmms for primary taxa #######
 ###########################################            
 
-tuvu_mod <- glmmTMB(turkey_vulture ~ carcass_age +
-                    offset(log(n_photos)) +
-                      (1 | ccam_num),
-                    family = nbinom1,
-                    data = scavenging_assemblage_counts2)
-
+#Turkey vulture model
+tuvu_mod <- glmmTMB(
+  cbind(turkey_vulture, 
+        n_photos - turkey_vulture) ~
+    carcass_age + (1 | ccam_num),
+  family = betabinomial,
+  data = scavenging_assemblage_counts)
 summary(tuvu_mod)
+
 
 # Check assumptions with DHARMa package
 tuvu_mod_res = simulateResiduals(tuvu_mod)
 plot(tuvu_mod_res, rank = T)
 testDispersion(tuvu_mod_res)
-plotResiduals(tuvu_mod_res, factor(scavenging_assemblage_rates$ccam_num), xlab = "carcass #", main=NULL)
-testZeroInflation(tuvu_mod_res)
+plotResiduals(tuvu_mod_res, factor(scavenging_assemblage_counts$ccam_num), xlab = "carcass #", main=NULL)
+
+#emmeans model summary
+tuvu_model_means <- emmeans(tuvu_mod, ~ carcass_age, type = "response") |>
+  as.data.frame()
+tuvu_model_means
+pairs(emmeans(tuvu_mod, ~ carcass_age))
 
 
-cora_mod <- glmmTMB(common_raven ~ carcass_age +
-                      offset(log(n_photos)) +
-                      (1 | ccam_num),
-                    family = nbinom1,
-                    data = scavenging_assemblage_counts2)
 
+#Common raven model
+cora_mod <- glmmTMB(
+  cbind(common_raven, 
+        n_photos - common_raven) ~
+    carcass_age + (1 | ccam_num),
+  family = betabinomial,
+  data = scavenging_assemblage_counts)
 summary(cora_mod)
+
 
 # Check assumptions with DHARMa package
 cora_mod_res = simulateResiduals(cora_mod)
 plot(cora_mod_res, rank = T)
 testDispersion(cora_mod_res)
-plotResiduals(cora_mod_res, factor(scavenging_assemblage_rates$ccam_num), xlab = "carcass #", main=NULL)
+plotResiduals(cora_mod_res, factor(scavenging_assemblage_counts$ccam_num), xlab = "carcass #", main=NULL)
 
+#emmeans model summary
+cora_model_means <- emmeans(cora_mod, ~ carcass_age, type = "response") |>
+  as.data.frame()
+cora_model_means
+pairs(emmeans(cora_mod, ~ carcass_age))
 
-
-ungu_mod <- glmmTMB(gull ~ carcass_age +
-                      offset(log(n_photos)) +
-                      (1 | ccam_num),
-                    family = nbinom1,
-                    data = scavenging_assemblage_counts2)
+#Gull model
+ungu_mod <- glmmTMB(
+  cbind(gull, 
+        n_photos - gull) ~
+    carcass_age + (1 | ccam_num),
+  family = betabinomial,
+  data = scavenging_assemblage_counts)
 summary(ungu_mod)
+
 
 # Check assumptions with DHARMa package
 ungu_mod_res = simulateResiduals(ungu_mod)
 plot(ungu_mod_res, rank = T)
 testDispersion(ungu_mod_res)
-plotResiduals(ungu_mod_res, factor(scavenging_assemblage_rates$ccam_num), xlab = "carcass #", main=NULL)
+plotResiduals(ungu_mod_res, factor(scavenging_assemblage_counts$ccam_num), xlab = "carcass #", main=NULL)
+
+#emmeans model summary
+ungu_model_means <- emmeans(ungu_mod, ~ carcass_age, type = "response") |>
+  as.data.frame()
+ungu_model_means
+pairs(emmeans(ungu_mod, ~ carcass_age))
+
+
+insectivore_mod_df <- scavenging_assemblage_counts |> 
+  filter(carcass_age %in% c(3,4))
+
+
+#Insectivorous bird model
+insectivore_mod <- glmmTMB(
+  cbind(insectivorous_bird, 
+        n_photos - insectivorous_bird) ~
+    carcass_age + (1 | ccam_num),
+  family = betabinomial,
+  data = insectivore_mod_df)
+summary(insectivore_mod)
+
+
+# Check assumptions with DHARMa package
+insectivore_mod_res = simulateResiduals(insectivore_mod)
+plot(insectivore_mod_res, rank = T)
+testDispersion(insectivore_mod_res)
+plotResiduals(insectivore_mod_res, factor(insectivore_mod_df$ccam_num), xlab = "carcass #", main=NULL)
+
+#emmeans model summary
+insectivore_model_means <- emmeans(insectivore_mod, ~ carcass_age, 
+                                   type = "response") |>
+  as.data.frame() 
+insectivore_model_means
+pairs(emmeans(insectivore_mod, ~ carcass_age))
+
+insectivore_model_means_plot_df <- insectivore_model_means |> 
+  add_row(carcass_age = "1/2", prob = 0, asymp.LCL = 0, asymp.UCL = 0) |> 
+  mutate(carcass_age = factor(carcass_age, levels = c("1/2", "3", "4")))
+
+############################################
+# Single-taxa succession ###################
+############################################
+
+single_taxa_succession_plot_df <- scavenging_assemblage_counts |> 
+  group_by(ccam_num) |> 
+  mutate(carcass_age = factor(carcass_age), 
+           carcass_age_jit = as.numeric(carcass_age) + runif(1, -0.2, 0.2)) |> 
+  ungroup()
 
 
 
-bird_mod <- glmmTMB(insectivorous_bird ~ carcass_age +
-                      offset(log(n_photos)) +
-                      (1 | ccam_num),
-                    family = nbinom1,
-                    data = scavenging_assemblage_counts2)
-summary(bird_mod)
+tuvu_plot <- ggplot(single_taxa_succession_plot_df, 
+                                     aes(x = carcass_age_jit, 
+                                         y = turkey_vulture/n_photos, 
+                                         group = ccam_num)) +
+  geom_line(color = "grey80", alpha = .4) +
+  geom_point(shape = 16, aes(color = carcass_age, size = n_photos), alpha = .5) +
+  geom_errorbar(data = tuvu_model_means, 
+                aes(x = as.numeric(carcass_age), 
+                    y = prob, 
+                    ymin = asymp.LCL, ymax = asymp.UCL), 
+                inherit.aes = FALSE, width =0, 
+                linewidth = 1
+  ) +
+  geom_point(data = tuvu_model_means, aes(x = as.numeric(carcass_age), 
+                                     y = prob), 
+             inherit.aes = FALSE, size = 5) +
+  geom_point(data = tuvu_model_means, aes(x = as.numeric(carcass_age), 
+                                     y = prob, 
+                                     color = carcass_age), 
+             inherit.aes = FALSE, size = 3) +
+  scale_x_continuous(breaks = c(1,2,3), labels = c("Fresh", "Moderate", "Old"))+
+  scale_color_manual(labels = c("Fresh", "Moderate", "Old"), 
+                     values = c("#648FFF","#FFB000", "#DC267F"))+
+  labs(x = "Carcass age", 
+       y = "Proportion of photos with turkey vultures scavenging",
+       size = "Number of\nPhotos") +
+  guides(color = "none")+
+  theme_few() +
+  theme(axis.text.x = element_text(face = "bold"),
+        axis.text.y = element_text(face = "bold"),
+        panel.border = element_rect(linewidth = 2),
+        axis.title = element_text(face = "bold"),
+        legend.position = "inside", 
+        legend.position.inside = c(.85, .8)
+  )
 
-table(scavenging_assemblage_rates$carcass_age, 
-      scavenging_assemblage_rates$insectivorous_bird == 0)
+  tuvu_plot
 
 
-bird_data_reduced <- scavenging_assemblage_counts2 |>
-  filter(carcass_age != "1/2") |>
-  droplevels()
 
-bird_mod_reduced <- glmmTMB(insectivorous_bird ~ carcass_age +
-                              offset(log(n_photos)) +
-                              (1 | ccam_num),
-                            family = nbinom1,
-                            data = bird_data_reduced)
-summary(bird_mod_reduced)
+cora_plot <- ggplot(single_taxa_succession_plot_df, 
+                      aes(x = carcass_age_jit, 
+                          y = common_raven/n_photos, 
+                          group = ccam_num)) +
+    geom_line(color = "grey80", alpha = .4) +
+    geom_point(shape = 16, aes(color = carcass_age, size = n_photos), alpha = .5) +
+    geom_errorbar(data = cora_model_means, 
+                  aes(x = as.numeric(carcass_age), 
+                      y = prob, 
+                      ymin = asymp.LCL, ymax = asymp.UCL), 
+                  inherit.aes = FALSE, width =0, 
+                  linewidth = 1
+    ) +
+    geom_point(data = cora_model_means, aes(x = as.numeric(carcass_age), 
+                                            y = prob), 
+               inherit.aes = FALSE, size = 5) +
+    geom_point(data = cora_model_means, aes(x = as.numeric(carcass_age), 
+                                            y = prob, 
+                                            color = carcass_age), 
+               inherit.aes = FALSE, size = 3) +
+    scale_x_continuous(breaks = c(1,2,3), labels = c("Fresh", "Moderate", "Old"))+
+    scale_color_manual(labels = c("Fresh", "Moderate", "Old"), 
+                       values = c("#648FFF","#FFB000", "#DC267F"))+
+    labs(x = "Carcass age", 
+         y = "Proportion of photos with common ravens scavenging", 
+         size = "Number of\nPhotos") +
+    guides(color = "none")+
+    theme_few() +
+    theme(axis.text.x = element_text(face = "bold"),
+          axis.text.y = element_text(face = "bold"),
+          panel.border = element_rect(linewidth = 2),
+          axis.title = element_text(face = "bold"),
+          legend.position = "inside", 
+          legend.position.inside = c(.85, .8)
+    )
+  
+cora_plot
+  
+
+  
+ungu_plot <- ggplot(single_taxa_succession_plot_df, 
+                      aes(x = carcass_age_jit, 
+                          y = gull/n_photos, 
+                          group = ccam_num)) +
+    geom_line(color = "grey80", alpha = .4) +
+    geom_point(shape = 16, aes(color = carcass_age, size = n_photos), alpha = .5) +
+    geom_errorbar(data = ungu_model_means, 
+                  aes(x = as.numeric(carcass_age), 
+                      y = prob, 
+                      ymin = asymp.LCL, ymax = asymp.UCL), 
+                  inherit.aes = FALSE, width =0, 
+                  linewidth = 1
+    ) +
+    geom_point(data = ungu_model_means, aes(x = as.numeric(carcass_age), 
+                                            y = prob), 
+               inherit.aes = FALSE, size = 5) +
+    geom_point(data = ungu_model_means, aes(x = as.numeric(carcass_age), 
+                                            y = prob, 
+                                            color = carcass_age), 
+               inherit.aes = FALSE, size = 3) +
+    scale_x_continuous(breaks = c(1,2,3), labels = c("Fresh", "Moderate", "Old"))+
+    scale_color_manual(labels = c("Fresh", "Moderate", "Old"), 
+                       values = c("#648FFF","#FFB000", "#DC267F"))+
+    labs(x = "Carcass age", 
+         y = "Proportion of photos with gulls scavenging", 
+         size = "Number of\nPhotos") +
+    guides(color = "none")+
+    theme_few() +
+    theme(axis.text.x = element_text(face = "bold"),
+          axis.text.y = element_text(face = "bold"),
+          panel.border = element_rect(linewidth = 2),
+          axis.title = element_text(face = "bold"),
+          legend.position = "inside", 
+          legend.position.inside = c(.85, .8)
+    )
+  
+  ungu_plot
+  
+  
+  
+  insectivore_plot <- ggplot(single_taxa_succession_plot_df, 
+                             aes(x = carcass_age_jit, 
+                                 y = insectivorous_bird/n_photos, 
+                                 group = ccam_num)) +
+    geom_line(color = "grey80", alpha = .4) +
+    geom_point(shape = 16, aes(color = carcass_age, size = n_photos), alpha = .5) +
+    geom_errorbar(data = insectivore_model_means_plot_df, 
+                  aes(x = as.numeric(carcass_age), 
+                      y = prob, 
+                      ymin = asymp.LCL, ymax = asymp.UCL), 
+                  inherit.aes = FALSE, width =0, 
+                  linewidth = 1
+    ) +
+    geom_point(data = insectivore_model_means_plot_df, aes(x = as.numeric(carcass_age), 
+                                                           y = prob), 
+               inherit.aes = FALSE, size = 5) +
+    geom_point(data = insectivore_model_means_plot_df, aes(x = as.numeric(carcass_age), 
+                                                           y = prob, 
+                                                           color = carcass_age), 
+               inherit.aes = FALSE, size = 3) +
+    scale_x_continuous(breaks = c(1,2,3), labels = c("Fresh", "Moderate", "Old"))+
+    scale_color_manual(labels = c("Fresh", "Moderate", "Old"), 
+                       values = c("#648FFF","#FFB000", "#DC267F"))+
+    labs(x = "Carcass age", 
+         y = "Proportion of photos with insectivorous birds scavenging", 
+         size = "Number of\nPhotos") +
+    guides(color = "none")+
+    theme_few() +
+    theme(axis.text.x = element_text(face = "bold"),
+          axis.text.y = element_text(face = "bold"),
+          panel.border = element_rect(linewidth = 2),
+          axis.title = element_text(face = "bold"),
+          legend.position = "inside", 
+          legend.position.inside = c(.25, .8)
+    )
+  
+  insectivore_plot
+  
+  
+  
 
 
-bird_mod_reduced_res <- simulateResiduals(bird_mod_reduced)
-plot(bird_mod_reduced_res, rank = TRUE)
-testDispersion(bird_mod_reduced_res)
-testZeroInflation(bird_mod_reduced_res)
+
+# OLD STUFF BELOW!!!!! #########
+##################################################################################
 
 #Pivot longer for plotting
 
@@ -370,3 +498,74 @@ ggplot(plot_df, aes(x=carcass_age,
         legend.title=element_text(face="bold"),)
 
 
+
+
+
+
+
+
+
+###########################################
+# Old (nbinom1) configuration ####
+###########################################   
+
+#note, deleted tuvu mod
+
+cora_mod <- glmmTMB(common_raven ~ carcass_age +
+                      offset(log(n_photos)) +
+                      (1 | ccam_num),
+                    family = nbinom1,
+                    data = scavenging_assemblage_counts2)
+
+summary(cora_mod)
+
+# Check assumptions with DHARMa package
+cora_mod_res = simulateResiduals(cora_mod)
+plot(cora_mod_res, rank = T)
+testDispersion(cora_mod_res)
+plotResiduals(cora_mod_res, factor(scavenging_assemblage_rates$ccam_num), xlab = "carcass #", main=NULL)
+
+
+
+ungu_mod <- glmmTMB(gull ~ carcass_age +
+                      offset(log(n_photos)) +
+                      (1 | ccam_num),
+                    family = nbinom1,
+                    data = scavenging_assemblage_counts2)
+summary(ungu_mod)
+
+# Check assumptions with DHARMa package
+ungu_mod_res = simulateResiduals(ungu_mod)
+plot(ungu_mod_res, rank = T)
+testDispersion(ungu_mod_res)
+plotResiduals(ungu_mod_res, factor(scavenging_assemblage_rates$ccam_num), xlab = "carcass #", main=NULL)
+
+
+
+bird_mod <- glmmTMB(insectivorous_bird ~ carcass_age +
+                      offset(log(n_photos)) +
+                      (1 | ccam_num),
+                    family = nbinom1,
+                    data = scavenging_assemblage_counts2)
+summary(bird_mod)
+
+table(scavenging_assemblage_rates$carcass_age, 
+      scavenging_assemblage_rates$insectivorous_bird == 0)
+
+
+bird_data_reduced <- scavenging_assemblage_counts2 |>
+  filter(carcass_age != "1/2") |>
+  droplevels()
+
+bird_mod_reduced <- glmmTMB(insectivorous_bird ~ carcass_age +
+                              offset(log(n_photos)) +
+                              (1 | ccam_num),
+                            family = nbinom1,
+                            data = bird_data_reduced)
+summary(bird_mod_reduced)
+
+
+bird_mod_reduced_res <- simulateResiduals(bird_mod_reduced)
+plot(bird_mod_reduced_res, rank = TRUE)
+testDispersion(bird_mod_reduced_res)
+testZeroInflation(bird_mod_reduced_res)

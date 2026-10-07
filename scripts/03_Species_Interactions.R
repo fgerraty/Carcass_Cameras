@@ -42,7 +42,7 @@ comp_glmer <- glmmTMB(
     carcass_age + (1 | ccam_num),
   family = betabinomial,
   data = competition_over_time)
-summary(comp_bb)
+summary(comp_glmer)
 
 
 # Check assumptions with DHARMa package
@@ -52,10 +52,10 @@ testDispersion(comp_glmer_res)
 plotResiduals(comp_glmer_res, factor(competition_over_time$ccam_num), xlab = "carcass #", main=NULL)
 
 #emmeans model summary
-model_means <- emmeans(comp_bb, ~ carcass_age, type = "response") |>
+model_means <- emmeans(comp_glmer, ~ carcass_age, type = "response") |>
   as.data.frame()
 model_means
-pairs(emmeans(comp_bb, ~ carcass_age))
+pairs(emmeans(comp_glmer, ~ carcass_age))
 
 
 #Plot 
