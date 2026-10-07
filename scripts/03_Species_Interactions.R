@@ -36,12 +36,14 @@ competition_over_time <- carcass_camera_data %>%
 
 
 #Linear mixed effects model 
-comp_glmer <- glmmTMB(n_competitive_interactions ~ carcass_age + 
-                        offset(log(n_photos)) +
-                        (1 | ccam_num),
-                     family = nbinom1,
-                     data = competition_over_time)
-summary(comp_glmer)
+comp_glmer <- glmmTMB(
+  cbind(n_competitive_interactions, 
+        n_photos - n_competitive_interactions) ~
+    carcass_age + (1 | ccam_num),
+  family = betabinomial,
+  data = competition_over_time)
+summary(comp_bb)
+
 
 # Check assumptions with DHARMa package
 comp_glmer_res = simulateResiduals(comp_glmer)
@@ -50,13 +52,10 @@ testDispersion(comp_glmer_res)
 plotResiduals(comp_glmer_res, factor(competition_over_time$ccam_num), xlab = "carcass #", main=NULL)
 
 #emmeans model summary
-mean_photos <- mean(competition_over_time$n_photos)
-model_means <- emmeans(comp_glmer, ~ carcass_age, type = "response",
-                       offset = log(mean(competition_over_time$n_photos))) |> 
-  as.data.frame() |> 
-  mutate(response_prop = response / mean_photos,
-         LCL_prop = asymp.LCL / mean_photos,
-         UCL_prop = asymp.UCL / mean_photos)
+model_means <- emmeans(comp_bb, ~ carcass_age, type = "response") |>
+  as.data.frame()
+model_means
+pairs(emmeans(comp_bb, ~ carcass_age))
 
 
 #Plot 
@@ -75,19 +74,18 @@ competition_over_time_plot <- ggplot(competition_over_time_plot_df,
   geom_point(shape = 16, aes(color = carcass_age, size = n_photos), alpha = .5) +
   geom_errorbar(data = model_means, 
                 aes(x = as.numeric(carcass_age), 
-                    y = response_prop, 
-                    ymin = LCL_prop, ymax = UCL_prop), 
+                    y = prob, 
+                    ymin = asymp.LCL, ymax = asymp.UCL), 
                 inherit.aes = FALSE, width =0, 
                 linewidth = 1
-                ) +
+  ) +
   geom_point(data = model_means, aes(x = as.numeric(carcass_age), 
-                                     y = response_prop), 
+                                     y = prob), 
              inherit.aes = FALSE, size = 5) +
   geom_point(data = model_means, aes(x = as.numeric(carcass_age), 
-                                     y = response_prop, 
+                                     y = prob, 
                                      color = carcass_age), 
              inherit.aes = FALSE, size = 3) +
-
   scale_x_continuous(breaks = c(1,2,3), labels = c("Fresh", "Moderate", "Old"))+
   scale_color_manual(labels = c("Fresh", "Moderate", "Old"), 
                      values = c("#648FFF","#FFB000", "#DC267F"))+
@@ -101,7 +99,7 @@ competition_over_time_plot <- ggplot(competition_over_time_plot_df,
         panel.border = element_rect(linewidth = 2),
         axis.title = element_text(face = "bold"),
         legend.position = "inside", 
-        legend.position.inside = c(.9, .8)
+        legend.position.inside = c(.85, .8)
         )
 
 competition_over_time_plot
@@ -232,22 +230,22 @@ pal <- c(
 competitive_interactions_plot <- ggplot(diverging, aes(x = prop_signed, 
                                                        y = keyword, 
                                                        fill = outcome)) +
-  geom_col(width = 0.6, position = position_stack(reverse = TRUE)) +
+  geom_col(width = 0.7, position = position_stack(reverse = TRUE)) +
   geom_vline(xintercept = 0, linewidth = 0.9, color = "grey20") +
   geom_text(data = side_labels,
-            aes(x =  0.77, y = keyword, label = str_to_title(right_sp)),
+            aes(x =  0.81, y = keyword, label = str_to_title(right_sp)),
             hjust = 0, size = 3.2, fontface = "italic", color = "grey30",
-            inherit.aes = FALSE) +
+            vjust = 3, inherit.aes = FALSE) +
   geom_text(data = side_labels,
-            aes(x = -0.52, y = keyword, label = str_to_title(left_sp)),
+            aes(x = -0.56, y = keyword, label = str_to_title(left_sp)),
             hjust = 1, size = 3.2, fontface = "italic", color = "grey30",
-            inherit.aes = FALSE) +
+            vjust = 3, inherit.aes = FALSE) +
   geom_text(aes(label = n_label),
             position = position_stack(vjust = 0.5, reverse = TRUE),
             size = 3, color = "white", fontface = "bold", na.rm = TRUE)+
   scale_x_continuous(
     labels   = ~ scales::percent(abs(.x), accuracy = 1),
-    limits   = c(-1, 1.5),
+    limits   = c(-1, 1.3),
     breaks   = seq(-0.5, 0.75, 0.25),
     expand   = c(0, 0)) +
   scale_fill_manual(
@@ -266,7 +264,7 @@ competitive_interactions_plot <- ggplot(diverging, aes(x = prop_signed,
     axis.text.y        = element_blank(),
     axis.ticks.y       = element_blank(),
     axis.text.x = element_text(face = "bold"),
-    axis.title = element_text(face = "bold"),
+    axis.title.x = element_text(face = "bold", margin = margin(t = 10)),
     )
 competitive_interactions_plot
 
