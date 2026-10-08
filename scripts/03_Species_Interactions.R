@@ -35,13 +35,10 @@ competition_over_time <- carcass_camera_data %>%
   filter(n_photos > 100)
 
 
-#Linear mixed effects model 
-comp_glmer <- glmmTMB(
-  cbind(n_competitive_interactions, 
-        n_photos - n_competitive_interactions) ~
-    carcass_age + (1 | ccam_num),
-  family = betabinomial,
-  data = competition_over_time)
+#Linear mixed effects model
+comp_glmer <- glmmTMB(n_competitive_interactions ~ carcass_age +
+                      offset(log(n_photos)) + (1 | ccam_num),
+                      family = nbinom1, data = competition_over_time)
 summary(comp_glmer)
 
 
@@ -52,7 +49,8 @@ testDispersion(comp_glmer_res)
 plotResiduals(comp_glmer_res, factor(competition_over_time$ccam_num), xlab = "carcass #", main=NULL)
 
 #emmeans model summary
-model_means <- emmeans(comp_glmer, ~ carcass_age, type = "response") |>
+model_means <- emmeans(comp_glmer, ~ carcass_age, type = "response", 
+                       at = list(n_photos = 1)) |>
   as.data.frame()
 model_means
 pairs(emmeans(comp_glmer, ~ carcass_age))
@@ -74,16 +72,16 @@ competition_over_time_plot <- ggplot(competition_over_time_plot_df,
   geom_point(shape = 16, aes(color = carcass_age, size = n_photos), alpha = .5) +
   geom_errorbar(data = model_means, 
                 aes(x = as.numeric(carcass_age), 
-                    y = prob, 
+                    y = response, 
                     ymin = asymp.LCL, ymax = asymp.UCL), 
                 inherit.aes = FALSE, width =0, 
                 linewidth = 1
   ) +
   geom_point(data = model_means, aes(x = as.numeric(carcass_age), 
-                                     y = prob), 
+                                     y = response), 
              inherit.aes = FALSE, size = 5) +
   geom_point(data = model_means, aes(x = as.numeric(carcass_age), 
-                                     y = prob, 
+                                     y = response, 
                                      color = carcass_age), 
              inherit.aes = FALSE, size = 3) +
   scale_x_continuous(breaks = c(1,2,3), labels = c("Fresh", "Moderate", "Old"))+
