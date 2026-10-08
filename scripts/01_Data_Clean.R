@@ -295,6 +295,6 @@ scav_summary_plot <- ggplot(plot_df, aes(x=species,
 scav_summary_plot
 
 
-ggsave("output/scav_summary_plot.png", scav_summary_plot, 
+ggsave("output/extra_plots/scav_summary_plot.png", scav_summary_plot, 
        width = 8, height = 5.2, units = "in", dpi = 600)
 

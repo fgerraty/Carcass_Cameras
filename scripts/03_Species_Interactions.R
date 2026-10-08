@@ -102,7 +102,7 @@ competition_over_time_plot <- ggplot(competition_over_time_plot_df,
 
 competition_over_time_plot
 
-ggsave("output/competition_over_time.png", competition_over_time_plot,
+ggsave("output/extra_plots/competition_over_time.png", competition_over_time_plot,
         width = 5, height = 5, units = "in", dpi = 600)
 
 ################################################################################
@@ -266,6 +266,6 @@ competitive_interactions_plot <- ggplot(diverging, aes(x = prop_signed,
     )
 competitive_interactions_plot
 
-ggsave("output/competitive_interactions.png", 
+ggsave("output/extra_plots/competitive_interactions.png", 
        width = 5, height = 5, units = "in", dpi = 600)
 
