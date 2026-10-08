@@ -19,20 +19,7 @@ scavenging_assemblage_rates <- read_csv("data/processed/scavenging_assemblage_ra
                                   white_crowned_sparrow+european_starling+ 
                                   semipalmated_plover+black_phoebe)
 
-scavenging_assemblage_rates2 <- read_csv("data/processed/scavenging_assemblage_rates2.csv") |> 
-  mutate(carcass_age = factor(carcass_age)) |> 
-  left_join(deployment_metadata_lookup, by = join_by(ccam_num)) |> 
-  mutate(insectivorous_bird = killdeer+savannah_sparrow+song_sparrow+
-           white_crowned_sparrow+european_starling+ 
-           semipalmated_plover+black_phoebe)
-
-
 scavenging_assemblage_counts <- read_csv("data/processed/scavenging_assemblage_counts.csv") |> 
-  mutate(insectivorous_bird = killdeer+savannah_sparrow+song_sparrow+
-           white_crowned_sparrow+european_starling+ 
-           semipalmated_plover+black_phoebe)
-
-scavenging_assemblage_counts2 <- read_csv("data/processed/scavenging_assemblage_counts2.csv") |> 
   mutate(insectivorous_bird = killdeer+savannah_sparrow+song_sparrow+
            white_crowned_sparrow+european_starling+ 
            semipalmated_plover+black_phoebe)
@@ -43,10 +30,10 @@ scavenging_assemblage_counts2 <- read_csv("data/processed/scavenging_assemblage_
 
 set.seed(999)
 
-scav_assemblage <- scavenging_assemblage_rates2 |> 
+scav_assemblage <- scavenging_assemblage_rates |> 
   select(common_raven:mule_deer)
 
-predictors <- scavenging_assemblage_rates2 |> 
+predictors <- scavenging_assemblage_rates |> 
   select(1:2) |> 
   left_join(deployment_metadata_lookup, by = join_by(ccam_num)) |> 
   mutate(year = factor(year),
@@ -138,7 +125,7 @@ tuvu_mod <- glmmTMB(turkey_vulture ~ carcass_age +
                       offset(log(n_photos)) +
                       (1 | ccam_num),
                     family = nbinom2,
-                    data = scavenging_assemblage_counts2)
+                    data = scavenging_assemblage_counts)
 summary(tuvu_mod)
 
 
@@ -161,7 +148,7 @@ cora_mod <- glmmTMB(common_raven ~ carcass_age +
                       offset(log(n_photos)) +
                       (1 | ccam_num),
                     family = nbinom2,
-                    data = scavenging_assemblage_counts2)
+                    data = scavenging_assemblage_counts)
 summary(cora_mod)
 
 
@@ -184,7 +171,7 @@ ungu_mod <- glmmTMB(gull ~ carcass_age +
                       offset(log(n_photos)) +
                       (1 | ccam_num),
                     family = nbinom2,
-                    data = scavenging_assemblage_counts2)
+                    data = scavenging_assemblage_counts)
 summary(ungu_mod)
 
 
@@ -237,7 +224,7 @@ insectivore_model_means_plot_df <- insectivore_model_means |>
 # Single-taxa succession ###################
 ############################################
 
-single_taxa_succession_plot_df <- scavenging_assemblage_counts2 |> 
+single_taxa_succession_plot_df <- scavenging_assemblage_counts |> 
   group_by(ccam_num) |> 
   mutate(carcass_age = factor(carcass_age), 
            carcass_age_jit = as.numeric(carcass_age) + runif(1, -0.2, 0.2)) |> 
@@ -268,21 +255,21 @@ tuvu_plot <- ggplot(single_taxa_succession_plot_df,
   scale_x_continuous(breaks = c(1,2,3), labels = c("Fresh", "Moderate", "Old"))+
   scale_color_manual(labels = c("Fresh", "Moderate", "Old"), 
                      values = c("#648FFF","#FFB000", "#DC267F"))+
-  labs(x = "Carcass age", 
-       y = "Proportion of photos with turkey vultures scavenging",
+  labs(x = "", 
+       y = "Number of turkey vultures scavenging per photo",
        size = "Number of\nPhotos") +
   guides(color = "none")+
   theme_few() +
   theme(axis.text.x = element_text(face = "bold"),
         axis.text.y = element_text(face = "bold"),
-        panel.border = element_rect(linewidth = 2),
-        axis.title = element_text(face = "bold"),
-        legend.position = "inside", 
-        legend.position.inside = c(.85, .8)
-  )
+        panel.border = element_rect(color = "black",linewidth = 2),
+        axis.title.y = element_text(face = "bold"),
+        legend.position = "none")
 
   tuvu_plot
 
+ggsave("output/extra_plots/tuvu_plot.png", tuvu_plot,
+         width = 6, height = 5, units = "in", dpi = 600)
 
 
 cora_plot <- ggplot(single_taxa_succession_plot_df, 
@@ -308,22 +295,24 @@ cora_plot <- ggplot(single_taxa_succession_plot_df,
     scale_x_continuous(breaks = c(1,2,3), labels = c("Fresh", "Moderate", "Old"))+
     scale_color_manual(labels = c("Fresh", "Moderate", "Old"), 
                        values = c("#648FFF","#FFB000", "#DC267F"))+
-    labs(x = "Carcass age", 
-         y = "Proportion of photos with common ravens scavenging", 
+    labs(x = "", 
+         y = "Number of common ravens scavenging per photo", 
          size = "Number of\nPhotos") +
     guides(color = "none")+
     theme_few() +
     theme(axis.text.x = element_text(face = "bold"),
           axis.text.y = element_text(face = "bold"),
-          panel.border = element_rect(linewidth = 2),
+          panel.border = element_rect(color = "black",linewidth = 2),
           axis.title = element_text(face = "bold"),
           legend.position = "inside", 
-          legend.position.inside = c(.85, .8)
+          legend.position.inside = c(.85, .8),
+          legend.box.background = element_rect(color = "black", linewidth = 2)
     )
   
 cora_plot
   
-
+ggsave("output/extra_plots/cora_plot.png", cora_plot,
+       width = 6, height = 5, units = "in", dpi = 600)
   
 ungu_plot <- ggplot(single_taxa_succession_plot_df, 
                       aes(x = carcass_age_jit, 
@@ -349,23 +338,23 @@ ungu_plot <- ggplot(single_taxa_succession_plot_df,
     scale_color_manual(labels = c("Fresh", "Moderate", "Old"), 
                        values = c("#648FFF","#FFB000", "#DC267F"))+
     labs(x = "Carcass age", 
-         y = "Proportion of photos with gulls scavenging", 
+         y = "Number of gulls scavenging per photo", 
          size = "Number of\nPhotos") +
     guides(color = "none")+
     theme_few() +
     theme(axis.text.x = element_text(face = "bold"),
           axis.text.y = element_text(face = "bold"),
-          panel.border = element_rect(linewidth = 2),
+          panel.border = element_rect(color = "black",linewidth = 2),
           axis.title = element_text(face = "bold"),
-          legend.position = "inside", 
-          legend.position.inside = c(.85, .8)
-    )
+          legend.position = "none")
   
-  ungu_plot
+ungu_plot
+  
+ggsave("output/extra_plots/ungu_plot.png", ungu_plot,
+         width = 6, height = 5, units = "in", dpi = 600)
   
   
-  
-  insectivore_plot <- ggplot(single_taxa_succession_plot_df, 
+insectivore_plot <- ggplot(single_taxa_succession_plot_df, 
                              aes(x = carcass_age_jit, 
                                  y = insectivorous_bird/n_photos, 
                                  group = ccam_num)) +
@@ -389,16 +378,17 @@ ungu_plot <- ggplot(single_taxa_succession_plot_df,
     scale_color_manual(labels = c("Fresh", "Moderate", "Old"), 
                        values = c("#648FFF","#FFB000", "#DC267F"))+
     labs(x = "Carcass age", 
-         y = "Proportion of photos with insectivorous birds scavenging", 
+         y = "Number of insectivorous birds scavenging per photo", 
          size = "Number of\nPhotos") +
     guides(color = "none")+
     theme_few() +
     theme(axis.text.x = element_text(face = "bold"),
           axis.text.y = element_text(face = "bold"),
-          panel.border = element_rect(linewidth = 2),
+          panel.border = element_rect(color = "black",linewidth = 2),
           axis.title = element_text(face = "bold"),
-          legend.position = "inside", 
-          legend.position.inside = c(.25, .8)
-    )
+          legend.position = "none")
   
   insectivore_plot
+  
+ggsave("output/extra_plots/insectivore_plot.png", insectivore_plot,
+         width = 6, height = 5, units = "in", dpi = 600)

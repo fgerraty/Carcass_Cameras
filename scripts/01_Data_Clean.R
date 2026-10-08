@@ -101,7 +101,7 @@ length(unique(carcass_camera_data$file_name))
 # Clean Scavenger Assemblages Data ####
 #######################################
 
-scavenging_assemblage_rates <- carcass_camera_data |>  
+scavenging_assemblage_rates <- carcass_camera_data |>   
   #remove poor image quality photos, disturbance photos, and competition photos. Note that competition photos are also tagged as "scavenging" and therefore retained for total photo counts
   filter(event_type %in% c("blank", "scavenging", "other")) |>  
   #Filter for only timelapse photos
@@ -114,45 +114,7 @@ scavenging_assemblage_rates <- carcass_camera_data |>
   #Calculate number of unique photos taken per carcass / decomposition level combo
   group_by(ccam_num, carcass_age) |>  
   mutate(n_photos = length(unique(file_name))) |>  
-  #Calculate number of photos in which each scavenger species was detected
-  group_by(ccam_num, carcass_age, n_photos, species_1) |>  
-  summarise(n_detections = length(unique(file_name)),
-            .groups = "drop") |>  
-  
-  #Filter out species / groups that are not of interest or not IDed to low enough taxonomic level
-  filter(!species_1 %in% c(NA, "northern elephant seal", 
-                           "turkey vulture/common raven/American crow", 
-                           "rodent",
-                           "songbird",
-                           "bird", 
-                           "sparrow",
-                           "plover")) |>  
-  #Filter for only carcasses (carcass-age combos) with >100 monitoring photos (e.g. ~12 hrs)
-  filter(n_photos > 100) |> 
-  mutate(detection_prop = n_detections/n_photos) |> 
-  select(-n_detections, -n_photos) |> 
-  #Pivot wider
-  pivot_wider(names_from = species_1, values_from = detection_prop, values_fill = 0) |>  
-  clean_names()
-  
-
-write_csv(scavenging_assemblage_rates, "data/processed/scavenging_assemblage_rates.csv")
-
-
-scavenging_assemblage_rates2 <- carcass_camera_data |>  
-  #remove poor image quality photos, disturbance photos, and competition photos. Note that competition photos are also tagged as "scavenging" and therefore retained for total photo counts
-  filter(event_type %in% c("blank", "scavenging", "other")) |>  
-  #Filter for only timelapse photos
-  filter(timelapse == TRUE) |>  
-  #Group carcass age stages 1 and 2
-  mutate(carcass_age = if_else(carcass_age %in% c(1,2), "1/2", 
-                               as.character(carcass_age)), 
-         #Turn into a factor
-         carcass_age = factor(carcass_age, levels = c("1/2","3","4"))) |>  
-  #Calculate number of unique photos taken per carcass / decomposition level combo
-  group_by(ccam_num, carcass_age) |>  
-  mutate(n_photos = length(unique(file_name))) |>  
-  #Calculate number of photos in which each scavenger species was detected
+  #Calculate number of photos in which each scavenger species was detected + number scavengers total
   group_by(ccam_num, carcass_age, n_photos, species_1) |>  
   summarise(n_detections = length(unique(file_name)),
             n_scavengers = sum(count),
@@ -174,45 +136,10 @@ scavenging_assemblage_rates2 <- carcass_camera_data |>
   pivot_wider(names_from = species_1, values_from = detection_rate, values_fill = 0) |>  
   clean_names()
 
-write_csv(scavenging_assemblage_rates2, "data/processed/scavenging_assemblage_rates2.csv")
+write_csv(scavenging_assemblage_rates, "data/processed/scavenging_assemblage_rates.csv")
 
 
 scavenging_assemblage_counts <- carcass_camera_data |>  
-  #remove poor image quality photos, disturbance photos, and competition photos. Note that competition photos are also tagged as "scavenging" and therefore retained for total photo counts
-  filter(event_type %in% c("blank", "scavenging", "other")) |>  
-  #Filter for only timelapse photos
-  filter(timelapse == TRUE) |>  
-  #Group carcass age stages 1 and 2
-  mutate(carcass_age = if_else(carcass_age %in% c(1,2), "1/2", 
-                               as.character(carcass_age)), 
-         #Turn into a factor
-         carcass_age = factor(carcass_age, levels = c("1/2","3","4"))) |>  
-  #Calculate number of unique photos taken per carcass / decomposition level combo
-  group_by(ccam_num, carcass_age) |>  
-  mutate(n_photos = length(unique(file_name))) |>  
-  #Calculate number of photos in which each scavenger species was detected
-  group_by(ccam_num, carcass_age, n_photos, species_1) |>  
-  summarise(n_detections = length(unique(file_name)), .groups = "drop") |>  
-  
-  #Filter out species / groups that are not of interest or not IDed to low enough taxonomic level
-  filter(!species_1 %in% c(NA, "northern elephant seal", 
-                           "turkey vulture/common raven/American crow", 
-                           "rodent",
-                           "songbird",
-                           "bird", 
-                           "sparrow",
-                           "plover")) |>  
-  #Filter for only carcasses (carcass-age combos) with >100 monitoring photos (e.g. ~12 hrs)
-  filter(n_photos > 100) |> 
-  #Pivot wider
-  pivot_wider(names_from = species_1, values_from = n_detections, values_fill = 0) |>  
-  clean_names()
-
-
-write_csv(scavenging_assemblage_counts, "data/processed/scavenging_assemblage_counts.csv")
-
-
-scavenging_assemblage_counts2 <- carcass_camera_data |>  
   #remove poor image quality photos, disturbance photos, and competition photos. Note that competition photos are also tagged as "scavenging" and therefore retained for total photo counts
   filter(event_type %in% c("blank", "scavenging", "other")) |>  
   #Filter for only timelapse photos
@@ -245,7 +172,7 @@ scavenging_assemblage_counts2 <- carcass_camera_data |>
   clean_names()
 
 
-write_csv(scavenging_assemblage_counts2, "data/processed/scavenging_assemblage_counts2.csv")
+write_csv(scavenging_assemblage_counts, "data/processed/scavenging_assemblage_counts.csv")
 
 
 
