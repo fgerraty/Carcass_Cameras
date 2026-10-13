@@ -86,19 +86,6 @@ nMDS_coords <- nMDS$points
 #combine nMDS coordinates with site name
 nMDS_coords <- cbind(predictors, nMDS_coords)
 
-ggplot(data=nMDS_coords, aes(x=MDS1, y=MDS2, color = carcass_age))+
-  geom_point(size=6)
-  
-ggplot(data=nMDS_coords, aes(x=MDS1, y=MDS2, color = beach))+
-  geom_point(size=6)
-
-ggplot(data=nMDS_coords, aes(x=MDS1, y=MDS2, color = carcass_length))+
-  geom_point(size=6)
-
-ggplot(data=nMDS_coords, aes(x=MDS1, y=MDS2, color = year))+
-  geom_point(size=6)
-
-
 nmds_carcass_age <- ggplot(data = nMDS_coords, aes(x = MDS1, y = MDS2, 
                                                color = carcass_age)) +
   geom_point(size = 4, shape=16, alpha=.85) +
@@ -107,13 +94,70 @@ nmds_carcass_age <- ggplot(data = nMDS_coords, aes(x = MDS1, y = MDS2,
   labs(x="NMDS1", y="NMDS2", color = "Carcass Age")+
   coord_cartesian(xlim = c(-2, 5))+
   theme_few()+
-  theme(panel.border = element_rect(linewidth = 2),
-               axis.title = element_text(face = "bold"),
-               legend.title = element_text(face = "bold"))
+  theme(panel.border = element_rect(color = "black", linewidth = 2),
+        axis.title = element_text(face = "bold"),
+        legend.title = element_text(face = "bold"),
+        legend.background = element_rect(color = "black", linewidth = 1),
+        legend.position = "inside", 
+        legend.position.inside = (c(.88, .858)))
 nmds_carcass_age
   
-ggsave("output/extra_plots/nmds_carcass_age.png", nmds_carcass_age, 
-       width = 5, height = 5, units = "in", dpi = 600)
+ggsave("output/Figure_5.png", nmds_carcass_age, 
+       width = 6, height = 5, units = "in", dpi = 600)
+
+
+nmds_beach <- ggplot(data=nMDS_coords, aes(x=MDS1, y=MDS2, color = beach))+
+  geom_point(size = 4, shape=16, alpha=.85) +
+  scale_color_manual(labels = c("North Point", "South Point"), 
+                     values = c("orange","#648fff"))+
+  labs(x="NMDS1", y="NMDS2", color = "Beach")+
+  coord_cartesian(xlim = c(-2, 5))+
+  theme_few()+
+  theme(panel.border = element_rect(color = "black", linewidth = 2),
+        axis.title = element_text(face = "bold"),
+        legend.title = element_text(face = "bold"),
+        legend.background = element_rect(color = "black", linewidth = 1),
+        legend.position = "inside", 
+        legend.position.inside = (c(.88, .885)))
+nmds_beach
+
+ggsave("output/extra_plots/nmds_beach.png", nmds_beach, 
+       width = 6, height = 5, units = "in", dpi = 600)
+
+nmds_length <- ggplot(data=nMDS_coords, aes(x=MDS1, y=MDS2, color = carcass_length))+
+  geom_point(size = 4, shape=16, alpha=.85) +
+  scale_color_viridis()+
+  labs(x="NMDS1", y="NMDS2", color = "Carcass length")+
+  coord_cartesian(xlim = c(-2, 5))+
+  theme_few()+
+  theme(panel.border = element_rect(color = "black", linewidth = 2),
+        axis.title = element_text(face = "bold"),
+        legend.title = element_text(face = "bold"),
+        legend.background = element_rect(color = "black", linewidth = 1),
+        legend.position = "inside", 
+        legend.position.inside = (c(.75, .805)))
+nmds_length
+
+ggsave("output/extra_plots/nmds_length.png", nmds_length, 
+       width = 6, height = 5, units = "in", dpi = 600)
+
+nmds_year <- ggplot(data=nMDS_coords, aes(x=MDS1, y=MDS2, color = year))+
+  geom_point(size = 4, shape=16, alpha=.85) +
+  scale_color_manual(values = c("#00a6ed","#f6511d", "#ffb400"))+
+  labs(x="NMDS1", y="NMDS2", color = "Year")+
+  coord_cartesian(xlim = c(-2, 5))+
+  theme_few()+
+  theme(panel.border = element_rect(color = "black", linewidth = 2),
+        axis.title = element_text(face = "bold"),
+        legend.title = element_text(face = "bold"),
+        legend.background = element_rect(color = "black", linewidth = 1),
+        legend.position = "inside", 
+        legend.position.inside = (c(.915, .858)))
+nmds_year
+
+ggsave("output/extra_plots/nmds_year.png", nmds_year, 
+       width = 6, height = 5, units = "in", dpi = 600)
+
 
 
 ###########################################
@@ -251,7 +295,7 @@ tuvu_plot <- ggplot(single_taxa_succession_plot_df,
   geom_point(data = tuvu_model_means, aes(x = as.numeric(carcass_age), 
                                      y = response, 
                                      color = carcass_age), 
-             inherit.aes = FALSE, size = 3) +
+             inherit.aes = FALSE, size = 2) +
   scale_x_continuous(breaks = c(1,2,3), labels = c("Fresh", "Moderate", "Old"))+
   scale_color_manual(labels = c("Fresh", "Moderate", "Old"), 
                      values = c("#648FFF","#FFB000", "#DC267F"))+
@@ -291,7 +335,7 @@ cora_plot <- ggplot(single_taxa_succession_plot_df,
     geom_point(data = cora_model_means, aes(x = as.numeric(carcass_age), 
                                             y = response, 
                                             color = carcass_age), 
-               inherit.aes = FALSE, size = 3) +
+               inherit.aes = FALSE, size = 2) +
     scale_x_continuous(breaks = c(1,2,3), labels = c("Fresh", "Moderate", "Old"))+
     scale_color_manual(labels = c("Fresh", "Moderate", "Old"), 
                        values = c("#648FFF","#FFB000", "#DC267F"))+
@@ -333,7 +377,7 @@ ungu_plot <- ggplot(single_taxa_succession_plot_df,
     geom_point(data = ungu_model_means, aes(x = as.numeric(carcass_age), 
                                             y = response, 
                                             color = carcass_age), 
-               inherit.aes = FALSE, size = 3) +
+               inherit.aes = FALSE, size = 2) +
     scale_x_continuous(breaks = c(1,2,3), labels = c("Fresh", "Moderate", "Old"))+
     scale_color_manual(labels = c("Fresh", "Moderate", "Old"), 
                        values = c("#648FFF","#FFB000", "#DC267F"))+
@@ -373,7 +417,7 @@ insectivore_plot <- ggplot(single_taxa_succession_plot_df,
     geom_point(data = insectivore_model_means_plot_df, aes(x = as.numeric(carcass_age), 
                                                            y = response, 
                                                            color = carcass_age), 
-               inherit.aes = FALSE, size = 3) +
+               inherit.aes = FALSE, size = 2) +
     scale_x_continuous(breaks = c(1,2,3), labels = c("Fresh", "Moderate", "Old"))+
     scale_color_manual(labels = c("Fresh", "Moderate", "Old"), 
                        values = c("#648FFF","#FFB000", "#DC267F"))+

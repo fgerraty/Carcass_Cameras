@@ -83,7 +83,7 @@ competition_over_time_plot <- ggplot(competition_over_time_plot_df,
   geom_point(data = model_means, aes(x = as.numeric(carcass_age), 
                                      y = response, 
                                      color = carcass_age), 
-             inherit.aes = FALSE, size = 3) +
+             inherit.aes = FALSE, size = 2) +
   scale_x_continuous(breaks = c(1,2,3), labels = c("Fresh", "Moderate", "Old"))+
   scale_color_manual(labels = c("Fresh", "Moderate", "Old"), 
                      values = c("#648FFF","#FFB000", "#DC267F"))+

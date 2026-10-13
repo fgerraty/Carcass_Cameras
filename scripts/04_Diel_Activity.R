@@ -97,14 +97,16 @@ activity_plot_clade <- ggplot(data = activity_df,
   scale_fill_manual(values =c("#D5AD36", "#4488BF"))+
   scale_color_manual(values = c("#9E7502", "#1A3E6B"))+
   labs(x = "", 
-       y = "No. Recorded Scavenging Events")+
+       y = "Number of Scavenging Events")+
   theme(strip.background = element_rect(fill = "transparent"),
         strip.text = element_text(face = "bold", color = "black"),
+       # axis.text = element_text(face = "bold"),
+        axis.title = element_text(face = "bold"),
         legend.position = "none")
 activity_plot_clade
 
-ggsave("output/diel_activity_clade.png", 
-       width = 6, height = 4, units = "in", dpi = 600)
+ggsave("output/extra_plots/diel_activity_clade.png", 
+       width = 6, height = 3, units = "in", dpi = 600)
 
 
 #############################################################
@@ -168,7 +170,7 @@ activity_plot_spp <- ggplot(data = activity_df2,
         legend.position.inside = c(.7, .1))
 activity_plot_spp
 
-ggsave( "output/diel_activity_spp.png", activity_plot_spp,
+ggsave( "output/supplementary_figures/diel_activity_spp.png", activity_plot_spp,
        width = 8.5, height = 10, units = "in", dpi = 600)
 
 
